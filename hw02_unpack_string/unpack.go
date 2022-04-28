@@ -5,55 +5,69 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(str string) (string, error) {
-	if len(str) == 0 {
-		return str, nil
+func Unpack(inStr string) (string, error) {
+	if len(inStr) == 0 {
+		return inStr, nil
 	}
 
-	var lastSymbol rune
+	var prevSymbol rune
 	var prevCh rune
 
-	var res string
-	for _, ch := range str {
+	var res strings.Builder
+	for _, ch := range inStr {
 		if unicode.IsDigit(ch) {
 			if unicode.IsDigit(prevCh) {
 				return "", ErrInvalidString
 			}
-			if prevCh == 0 || lastSymbol == 0 {
+			if prevCh == 0 || prevSymbol == 0 {
 				return "", ErrInvalidString
 			}
 		} else {
 			if unicode.IsDigit(prevCh) {
-				count, err := strconv.ParseInt(string(prevCh), 10, 64)
+				count, err := strconv.Atoi(string(prevCh))
 				if err != nil {
 					return "", ErrInvalidString
 				}
 
-				res += strings.Repeat(string(lastSymbol), int(count))
+				res.WriteString(strings.Repeat(string(prevSymbol), count))
 			} else if prevCh != 0 {
-				res += string(lastSymbol)
+				res.WriteRune(prevSymbol)
 			}
 
-			lastSymbol = ch
+			prevSymbol = ch
 		}
 
 		prevCh = ch
 	}
 
-	if unicode.IsDigit(rune(str[len(str)-1])) {
-		count, err := strconv.ParseInt(string(prevCh), 10, 64)
+	end, err := getEndStr(inStr, prevCh, prevSymbol)
+	if err != nil {
+		return "", err
+	}
+
+	res.WriteString(end)
+	return res.String(), nil
+}
+
+func getEndStr(inStr string, prevCh rune, prevSymbol rune) (string, error) {
+	lastRune, _ := utf8.DecodeLastRuneInString(inStr)
+	if lastRune == utf8.RuneError {
+		return "", ErrInvalidString
+	}
+
+	if unicode.IsDigit(lastRune) {
+		count, err := strconv.Atoi(string(prevCh))
 		if err != nil {
 			return "", ErrInvalidString
 		}
 
-		res += strings.Repeat(string(lastSymbol), int(count))
-	} else {
-		res += string(str[len(str)-1])
+		return strings.Repeat(string(prevSymbol), count), nil
 	}
 
-	return res, nil
+	return string(lastRune), nil
 }

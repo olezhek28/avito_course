@@ -22,6 +22,7 @@ func TestUnpack(t *testing.T) {
 		{input: "^%", expected: "^%"},
 		{input: "φ3vb", expected: "φφφvb"},
 		{input: "語2d3", expected: "語語ddd"},
+		{input: "語", expected: "語"},
 		// uncomment if task with asterisk completed
 		// {input: `qwe\4\5`, expected: `qwe45`},
 		// {input: `qwe\45`, expected: `qwe44444`},
@@ -49,6 +50,7 @@ func TestUnpackInvalidString(t *testing.T) {
 		"a1c3d21",
 		"φ13vb",
 		"語2d13",
+		"2d13語",
 	}
 
 	for _, tc := range invalidStrings {
