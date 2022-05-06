@@ -17,16 +17,13 @@ type ListItem struct {
 }
 
 type list struct {
-	size     int
-	first    *ListItem
-	last     *ListItem
-	valueMap map[interface{}]*ListItem
+	front *ListItem
+	back  *ListItem
+	size  int
 }
 
 func NewList() List {
-	return &list{
-		valueMap: make(map[interface{}]*ListItem),
-	}
+	return &list{}
 }
 
 func (l *list) Len() int {
@@ -34,55 +31,51 @@ func (l *list) Len() int {
 }
 
 func (l *list) Front() *ListItem {
-	return l.first
+	return l.front
 }
 
 func (l *list) Back() *ListItem {
-	return l.last
+	return l.back
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
-	if l.first == nil {
-		l.first = &ListItem{
-			Value: v,
-		}
-		l.last = l.first
-	} else {
-		tmp := l.first
-		l.first = &ListItem{
-			Value: v,
-			Next:  tmp,
-		}
-
-		tmp.Prev = l.first
+	newItem := &ListItem{
+		Value: v,
+		Next:  l.front,
 	}
 
-	l.size++
-	l.valueMap[l.first.Value] = l.first
+	if l.front != nil {
+		l.front.Prev = newItem
+	}
 
-	return l.first
+	l.front = newItem
+	l.size++
+
+	if l.back == nil {
+		l.back = l.front
+	}
+
+	return l.front
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
-	if l.last == nil {
-		l.last = &ListItem{
-			Value: v,
-		}
-		l.first = l.last
-	} else {
-		tmp := l.last
-		l.last = &ListItem{
-			Value: v,
-			Prev:  tmp,
-		}
-
-		tmp.Next = l.last
+	newItem := &ListItem{
+		Value: v,
+		Prev:  l.back,
 	}
 
-	l.size++
-	l.valueMap[l.last.Value] = l.last
+	if l.back != nil {
+		l.back.Next = newItem
+	}
 
-	return l.last
+	l.back = newItem
+	l.size++
+
+	if l.front == nil {
+		l.front = l.back
+	}
+
+	return l.back
 }
 
 func (l *list) Remove(i *ListItem) {
@@ -90,47 +83,43 @@ func (l *list) Remove(i *ListItem) {
 		return
 	}
 
-	if ptr, found := l.valueMap[i.Value]; found {
-		prevElem := ptr.Prev
-		nexElem := ptr.Next
+	l.size--
 
-		if prevElem != nil {
-			prevElem.Next = nexElem
-		}
-		if nexElem != nil {
-			nexElem.Prev = prevElem
-		}
+	switch {
+	case l.Len() <= 0:
+		l.front = nil
+		l.back = nil
+		l.size = 0
 
-		delete(l.valueMap, i.Value)
-		l.size--
+	case i == l.front:
+		l.front = l.front.Next
 
-		if l.size == 0 {
-			l.first = nil
-			l.last = nil
-		}
+	case i == l.back:
+		l.back = l.back.Prev
+
+	default:
+		prevElem := i.Prev
+		nextElem := i.Next
+
+		prevElem.Next = nextElem
+		nextElem.Prev = prevElem
 	}
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-	if i == nil {
+	if i == nil || i == l.front || (i.Prev == nil && i.Next == nil) {
 		return
 	}
 
-	if ptr, found := l.valueMap[i.Value]; found {
-		if ptr == l.first {
-			return
-		}
+	prevElem := i.Prev
+	nexElem := i.Next
 
-		prevElem := ptr.Prev
-		nexElem := ptr.Next
-
-		if prevElem != nil {
-			prevElem.Next = nexElem
-		}
-		if nexElem != nil {
-			nexElem.Prev = prevElem
-		}
-
-		l.PushFront(i.Value)
+	if prevElem != nil {
+		prevElem.Next = nexElem
 	}
+	if nexElem != nil {
+		nexElem.Prev = prevElem
+	}
+
+	l.PushFront(i.Value)
 }
