@@ -15,6 +15,58 @@ func TestList(t *testing.T) {
 		require.Nil(t, l.Back())
 	})
 
+	t.Run("push back and remove in list", func(t *testing.T) {
+		l := NewList()
+		ptr := l.PushBack(10)
+		l.Remove(ptr)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
+	t.Run("push front and remove in list", func(t *testing.T) {
+		l := NewList()
+		ptr := l.PushFront(10)
+		l.Remove(ptr)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
+	t.Run("remove from empty list", func(t *testing.T) {
+		l := NewList()
+		l.Remove(nil)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
+	t.Run("remove element not from list", func(t *testing.T) {
+		l := NewList()
+		ptr := &ListItem{Value: 10}
+		l.Remove(ptr)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
+	t.Run("move to front from empty list", func(t *testing.T) {
+		l := NewList()
+		l.MoveToFront(nil)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
+	t.Run("move to front element not from list", func(t *testing.T) {
+		l := NewList()
+		ptr := &ListItem{Value: 10}
+		l.MoveToFront(ptr)
+		require.Equal(t, 0, l.Len())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+
 	t.Run("complex", func(t *testing.T) {
 		l := NewList()
 
