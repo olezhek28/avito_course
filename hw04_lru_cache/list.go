@@ -39,17 +39,7 @@ func (l *list) Back() *ListItem {
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
-	newItem := &ListItem{
-		Value: v,
-		Next:  l.front,
-	}
-
-	if l.front != nil {
-		l.front.Prev = newItem
-	}
-
-	l.front = newItem
-	l.size++
+	l.pushBefore(l.front, v)
 
 	if l.back == nil {
 		l.back = l.front
@@ -58,18 +48,30 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	return l.front
 }
 
-func (l *list) PushBack(v interface{}) *ListItem {
+func (l *list) pushBefore(node *ListItem, v interface{}) {
+	defer func() { l.size++ }()
+
 	newItem := &ListItem{
 		Value: v,
-		Prev:  l.back,
+		Next:  node,
 	}
 
-	if l.back != nil {
-		l.back.Next = newItem
+	if node == nil {
+		l.front = newItem
+		l.back = newItem
+		return
 	}
 
-	l.back = newItem
-	l.size++
+	newItem.Prev = node.Prev
+	node.Prev = newItem
+
+	if node == l.front {
+		l.front = newItem
+	}
+}
+
+func (l *list) PushBack(v interface{}) *ListItem {
+	l.pushAfter(l.back, v)
 
 	if l.front == nil {
 		l.front = l.back
@@ -78,48 +80,55 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	return l.back
 }
 
-func (l *list) Remove(i *ListItem) {
-	if i == nil {
+func (l *list) pushAfter(node *ListItem, v interface{}) {
+	defer func() { l.size++ }()
+
+	newItem := &ListItem{
+		Value: v,
+		Prev:  l.back,
+	}
+
+	if node == nil {
+		l.front = newItem
+		l.back = newItem
 		return
 	}
 
-	l.size--
+	newItem.Next = node.Next
+	node.Next = newItem
 
-	switch {
-	case l.Len() <= 0:
-		l.front = nil
-		l.back = nil
-		l.size = 0
+	if node == l.back {
+		l.back = newItem
+	}
+}
 
-	case i == l.front:
-		l.front = l.front.Next
+func (l *list) Remove(i *ListItem) {
+	if i == nil || l.Len() == 0 {
+		return
+	}
 
-	case i == l.back:
-		l.back = l.back.Prev
+	defer func() { l.size-- }()
 
-	default:
-		prevElem := i.Prev
-		nextElem := i.Next
+	if i.Prev != nil {
+		i.Prev.Next = i.Next
+	}
+	if i.Next != nil {
+		i.Next.Prev = i.Prev
+	}
 
-		prevElem.Next = nextElem
-		nextElem.Prev = prevElem
+	if i == l.front {
+		l.front = i.Next
+	}
+	if i == l.back {
+		l.back = i.Prev
 	}
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-	if i == nil || i == l.front || (i.Prev == nil && i.Next == nil) {
+	if l.Len() == 0 || i == nil || i == l.front || (i.Prev == nil && i.Next == nil) {
 		return
 	}
 
-	prevElem := i.Prev
-	nexElem := i.Next
-
-	if prevElem != nil {
-		prevElem.Next = nexElem
-	}
-	if nexElem != nil {
-		nexElem.Prev = prevElem
-	}
-
-	l.PushFront(i.Value)
+	l.Remove(i)
+	l.pushBefore(l.front, i.Value)
 }
