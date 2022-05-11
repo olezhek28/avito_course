@@ -58,7 +58,6 @@ func (l *list) pushBefore(node *ListItem, v interface{}) {
 
 	if node == nil {
 		l.front = newItem
-		l.back = newItem
 		return
 	}
 
@@ -89,7 +88,6 @@ func (l *list) pushAfter(node *ListItem, v interface{}) {
 	}
 
 	if node == nil {
-		l.front = newItem
 		l.back = newItem
 		return
 	}
@@ -107,8 +105,6 @@ func (l *list) Remove(i *ListItem) {
 		return
 	}
 
-	defer func() { l.size-- }()
-
 	if i.Prev != nil {
 		i.Prev.Next = i.Next
 	}
@@ -122,6 +118,8 @@ func (l *list) Remove(i *ListItem) {
 	if i == l.back {
 		l.back = i.Prev
 	}
+
+	l.size--
 }
 
 func (l *list) MoveToFront(i *ListItem) {
