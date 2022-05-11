@@ -10,6 +10,12 @@ type Task func() error
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
-	// Place your code here.
+	limitChan := make(chan struct{}, n)
+	for _, t := range tasks {
+		limitChan <- struct{}{}
+
+		go t()
+	}
+
 	return nil
 }
