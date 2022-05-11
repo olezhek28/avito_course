@@ -39,7 +39,7 @@ func (l *list) Back() *ListItem {
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
-	l.pushBefore(l.front, v)
+	l.front = l.pushBefore(l.front, v)
 
 	if l.back == nil {
 		l.back = l.front
@@ -48,29 +48,23 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	return l.front
 }
 
-func (l *list) pushBefore(node *ListItem, v interface{}) {
-	defer func() { l.size++ }()
-
+func (l *list) pushBefore(node *ListItem, v interface{}) *ListItem {
 	newItem := &ListItem{
 		Value: v,
 		Next:  node,
 	}
 
-	if node == nil {
-		l.front = newItem
-		return
+	if node != nil {
+		newItem.Prev = node.Prev
+		node.Prev = newItem
 	}
 
-	newItem.Prev = node.Prev
-	node.Prev = newItem
-
-	if node == l.front {
-		l.front = newItem
-	}
+	l.size++
+	return newItem
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
-	l.pushAfter(l.back, v)
+	l.back = l.pushAfter(l.back, v)
 
 	if l.front == nil {
 		l.front = l.back
@@ -79,25 +73,19 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	return l.back
 }
 
-func (l *list) pushAfter(node *ListItem, v interface{}) {
-	defer func() { l.size++ }()
-
+func (l *list) pushAfter(node *ListItem, v interface{}) *ListItem {
 	newItem := &ListItem{
 		Value: v,
 		Prev:  l.back,
 	}
 
-	if node == nil {
-		l.back = newItem
-		return
+	if node != nil {
+		newItem.Next = node.Next
+		node.Next = newItem
 	}
 
-	newItem.Next = node.Next
-	node.Next = newItem
-
-	if node == l.back {
-		l.back = newItem
-	}
+	l.size++
+	return newItem
 }
 
 func (l *list) Remove(i *ListItem) {
@@ -128,5 +116,5 @@ func (l *list) MoveToFront(i *ListItem) {
 	}
 
 	l.Remove(i)
-	l.pushBefore(l.front, i.Value)
+	l.PushFront(i.Value)
 }
