@@ -1,40 +1,53 @@
 package hw05parallelexecution
 
 import (
-	"context"
 	"sync"
+	"sync/atomic"
 )
 
 const chanSize = 1000
 
-type pool struct {
-	tasks         []Task
-	concurrency   int
-	collector     chan Task
-	wg            sync.WaitGroup
-	maxErrorCount int
-	errorCount    int
-	resultChan    chan error
-	mt            sync.Mutex
+type limiter struct {
+	count int64
+	limit int64
 }
 
-func newPool(tasks []Task, concurrency int, maxErrorCount int) *pool {
-	return &pool{
-		tasks:         tasks,
-		concurrency:   concurrency,
-		collector:     make(chan Task, chanSize),
-		maxErrorCount: maxErrorCount,
-		resultChan:    make(chan error, chanSize),
+func newLimiter(limit int64) *limiter {
+	return &limiter{
+		limit: limit,
 	}
 }
 
-func (p *pool) run(ctx context.Context) {
-	ctx, cancel := context.WithCancel(ctx)
+func (l *limiter) inc() {
+	atomic.AddInt64(&l.count, 1)
+}
 
+func (l *limiter) isLimitExceeded() bool {
+	return atomic.LoadInt64(&l.count) >= atomic.LoadInt64(&l.limit)
+}
+
+type pool struct {
+	tasks       []Task
+	concurrency int
+	collector   chan Task
+	wg          sync.WaitGroup
+	limiter     *limiter
+}
+
+func newPool(tasks []Task, concurrency int, maxErrorCount int64) *pool {
+	return &pool{
+		tasks:       tasks,
+		concurrency: concurrency,
+		collector:   make(chan Task, chanSize),
+		limiter:     newLimiter(maxErrorCount),
+	}
+}
+
+func (p *pool) run() {
 	// Run workers
 	for i := 0; i < p.concurrency; i++ {
-		w := newWorker(i, p.collector, p.resultChan)
-		w.Start(ctx, &p.wg)
+		w := newWorker(i, p.collector)
+		w.Start(&p.wg, p.limiter)
 	}
 
 	// Processing tasks
@@ -43,22 +56,5 @@ func (p *pool) run(ctx context.Context) {
 	}
 	close(p.collector)
 
-	for err := range p.resultChan {
-		if err != nil {
-			p.errorCount++
-		}
-
-		if p.errorCount >= p.maxErrorCount {
-			cancel()
-		}
-	}
-
 	p.wg.Wait()
 }
-
-//func (p *pool) getErrorCount() int {
-//	p.mt.Lock()
-//	defer p.mt.Unlock()
-//
-//	return p.errorCount
-//}

@@ -1,7 +1,6 @@
 package hw05parallelexecution
 
 import (
-	"context"
 	"fmt"
 	"sync"
 )
@@ -9,27 +8,30 @@ import (
 type Task func() error
 
 type worker struct {
-	id         int
-	taskChan   chan Task
-	resultChan chan error
+	id       int
+	taskChan chan Task
 }
 
-func newWorker(id int, chanTask chan Task, resultChan chan error) *worker {
+func newWorker(id int, chanTask chan Task) *worker {
 	return &worker{
-		id:         id,
-		taskChan:   chanTask,
-		resultChan: resultChan,
+		id:       id,
+		taskChan: chanTask,
 	}
 }
 
-func (w *worker) Start(ctx context.Context, wg *sync.WaitGroup) {
+func (w *worker) Start(wg *sync.WaitGroup, limiter *limiter) {
 	fmt.Println("Start worker, id:", w.id)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for task := range w.taskChan {
-			w.resultChan <- task()
+			if task() != nil {
+				limiter.inc()
+				if limiter.isLimitExceeded() {
+					return
+				}
+			}
 		}
 	}()
 }
