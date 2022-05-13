@@ -43,7 +43,7 @@ func newPool(tasks []Task, concurrency int, maxErrorCount int64) *pool {
 	}
 }
 
-func (p *pool) run() {
+func (p *pool) run() error {
 	// Run workers
 	for i := 0; i < p.concurrency; i++ {
 		w := newWorker(i, p.collector)
@@ -57,4 +57,10 @@ func (p *pool) run() {
 	close(p.collector)
 
 	p.wg.Wait()
+
+	if p.limiter.isLimitExceeded() {
+		return ErrErrorsLimitExceeded
+	}
+
+	return nil
 }
