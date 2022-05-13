@@ -59,7 +59,7 @@ func (p *pool) run() error {
 	p.wg.Wait()
 
 	if p.limiter.isLimitExceeded() {
-		return ErrErrorsLimitExceeded
+		return errErrorsLimitExceeded
 	}
 
 	return nil
