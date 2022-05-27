@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"time"
 
 	"github.com/cheggaaa/pb/v3"
 )
@@ -15,13 +14,18 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
+type copyParams struct {
+	offset int64
+	limit  int64
+}
+
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	params, err := validate(fromPath, offset, limit)
 	if err != nil {
 		return err
 	}
 
-	file, err := os.OpenFile(fromPath, os.O_RDONLY, 0666)
+	file, err := os.OpenFile(fromPath, os.O_RDONLY, 0o666)
 	if err != nil {
 		return err
 	}
@@ -39,7 +43,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
-	err = copy(file, tmpFile)
+	err = copyFile(file, tmpFile, params.limit)
 	if err != nil {
 		return err
 	}
@@ -49,37 +53,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
-	//newFile, err := os.Create(toPath)
-	//if err != nil {
-	//	return err
-	//}
-	//defer newFile.Close()
-
-	//// 0 - вычисляем отступ от начала файла
-	//_, err = file.Seek(offset, 0)
-	//if err != nil {
-	//	return err
-	//}
-
-	//buf := make([]byte, params.limit)
-	//_, err = file.ReadAt(buf, params.offset)
-	//if err != nil {
-	//	if err != io.EOF {
-	//		return err
-	//	}
-	//}
-	//
-	//_, err = newFile.Write(buf)
-	//if err != nil {
-	//	return err
-	//}
-
 	return nil
-}
-
-type copyParams struct {
-	offset int64
-	limit  int64
 }
 
 func validate(filePath string, offset int64, limit int64) (*copyParams, error) {
@@ -106,7 +80,7 @@ func validate(filePath string, offset int64, limit int64) (*copyParams, error) {
 	}, nil
 }
 
-func copy(src io.Reader, dst io.Writer) error {
+func copyFile(src io.Reader, dst io.Writer, limit int64) error {
 	pBar := pb.Start64(limit)
 	defer pBar.Finish()
 
@@ -114,22 +88,19 @@ func copy(src io.Reader, dst io.Writer) error {
 	for {
 		n, err := io.CopyN(dst, src, 1)
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 
 			return err
 		}
 
-		// sleep исключительно для демонстрации прогресс бара при работе с мелкими файлами
-		time.Sleep(100 * time.Millisecond)
 		pBar.Increment()
 
 		total += n
 		if total == limit {
 			break
 		}
-
 	}
 
 	return nil
