@@ -17,8 +17,8 @@ func TestReadDir(t *testing.T) {
 			"FOO":   {"   foo\nwith new line", false},
 			"HELLO": {"\"hello\"", false},
 		}
-		actual, err := ReadDir("testdata/env")
 
+		actual, err := ReadDir("testdata/env")
 		require.NoError(t, err)
 		require.Equal(t, expected, actual)
 	})

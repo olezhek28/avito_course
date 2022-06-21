@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -20,10 +21,6 @@ type EnvValue struct {
 }
 
 type Environment map[string]EnvValue
-
-func (e *Environment) ToSlice() {
-
-}
 
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
@@ -67,7 +64,7 @@ func getValueFromFile(fullName string) (string, error) {
 	defer func() {
 		err = f.Close()
 		if err != nil {
-			fmt.Errorf("failed to close file: %w", err)
+			log.Println("failed to close file: %w", err)
 		}
 	}()
 
