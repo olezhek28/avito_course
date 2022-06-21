@@ -2,14 +2,14 @@ package main
 
 import (
 	"bufio"
-	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 var ErrInvalidFilename = errors.New("invalid filename")
@@ -27,7 +27,7 @@ type Environment map[string]EnvValue
 func ReadDir(dir string) (Environment, error) {
 	fileInfos, err := ioutil.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read dir: %w", err)
+		return nil, errors.WithMessage(err, "failed to read dir")
 	}
 
 	env := make(Environment, len(fileInfos))
@@ -59,7 +59,7 @@ func ReadDir(dir string) (Environment, error) {
 func getValueFromFile(fullName string) (string, error) {
 	f, err := os.Open(fullName)
 	if err != nil {
-		return "", fmt.Errorf("failed to open file: %w", err)
+		return "", errors.WithMessage(err, "failed to open file")
 	}
 	defer func() {
 		err = f.Close()
@@ -71,7 +71,7 @@ func getValueFromFile(fullName string) (string, error) {
 	buf := bufio.NewReader(f)
 	line, err := buf.ReadBytes('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
-		return "", fmt.Errorf("failed to read file: %w", err)
+		return "", errors.WithMessage(err, "failed to read file")
 	}
 
 	val := strings.ReplaceAll(string(line), "\x00", "\n")
