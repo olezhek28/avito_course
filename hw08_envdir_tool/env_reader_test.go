@@ -11,10 +11,11 @@ import (
 func TestReadDir(t *testing.T) {
 	t.Run("correct reading", func(t *testing.T) {
 		expected := Environment{
-			"BAR":   EnvValue{Value: "bar"},
-			"FOO":   EnvValue{Value: "   foo\nwith new line"},
-			"HELLO": EnvValue{Value: `"hello"`},
-			"EMPTY": EnvValue{Value: ""},
+			"BAR":   {"bar", false},
+			"UNSET": {"", true},
+			"EMPTY": {"", false},
+			"FOO":   {"   foo\nwith new line", false},
+			"HELLO": {"\"hello\"", false},
 		}
 		actual, err := ReadDir("testdata/env")
 

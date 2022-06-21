@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -14,12 +13,16 @@ import (
 
 var ErrInvalidFilename = errors.New("invalid filename")
 
-type Environment map[string]EnvValue
-
 // EnvValue helps to distinguish between empty files and files with the first empty line.
 type EnvValue struct {
 	Value      string
 	NeedRemove bool
+}
+
+type Environment map[string]EnvValue
+
+func (e *Environment) ToSlice() {
+
 }
 
 // ReadDir reads a specified directory and returns map of env variables.
@@ -41,11 +44,6 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, ErrInvalidFilename
 		}
 
-		if fInfo.Size() == 0 {
-			delete(env, fInfo.Name())
-			continue
-		}
-
 		var val string
 		val, err = getValueFromFile(path.Join(dir, fInfo.Name()))
 		if err != nil {
@@ -53,7 +51,8 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		env[fInfo.Name()] = EnvValue{
-			Value: val,
+			Value:      val,
+			NeedRemove: fInfo.Size() == 0,
 		}
 	}
 
@@ -78,8 +77,8 @@ func getValueFromFile(fullName string) (string, error) {
 		return "", fmt.Errorf("failed to read file: %w", err)
 	}
 
-	val := bytes.ReplaceAll(line, []byte{0}, []byte{'\n'})
-	valStr := strings.TrimRight(string(val), " \t\n")
+	val := strings.ReplaceAll(string(line), "\x00", "\n")
+	val = strings.TrimRight(val, " \t\n")
 
-	return valStr, nil
+	return val, nil
 }
