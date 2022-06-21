@@ -31,7 +31,7 @@ func TestReadDir(t *testing.T) {
 	t.Run("empty dir", func(t *testing.T) {
 		dir := "testdata/empty"
 
-		err := os.Mkdir(dir, os.FileMode(0755))
+		err := os.Mkdir(dir, os.FileMode(0o755))
 		require.Nil(t, err)
 		defer func() {
 			err = os.Remove(dir)
@@ -46,7 +46,7 @@ func TestReadDir(t *testing.T) {
 	t.Run("invalid filename", func(t *testing.T) {
 		dir := "testdata/invalid_env"
 
-		err := os.Mkdir(dir, os.FileMode(0755))
+		err := os.Mkdir(dir, os.FileMode(0o755))
 		require.NoError(t, err)
 		defer func() {
 			err = os.RemoveAll(dir)
