@@ -9,6 +9,8 @@ import (
 	"github.com/cheggaaa/pb/v3"
 )
 
+const tmpFilenamePattern = "temp.*"
+
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
@@ -32,13 +34,13 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	defer file.Close()
 
 	if offset > 0 {
-		_, err = file.Seek(params.offset, 0)
+		_, err = file.Seek(params.offset, io.SeekStart)
 		if err != nil {
 			return err
 		}
 	}
 
-	tmpFile, err := ioutil.TempFile("", "temp.*")
+	tmpFile, err := ioutil.TempFile("", tmpFilenamePattern)
 	if err != nil {
 		return err
 	}
