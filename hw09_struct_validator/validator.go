@@ -29,8 +29,8 @@ var (
 	ErrStrLen     = errors.New("%s length exceeds limit: %v")
 	ErrStrRegexp  = errors.New("%s doesn't match regexp: %v")
 	ErrEmptySlice = errors.New("slice is empty")
-	ErrIntMin     = errors.New("has wrong value of field, needs min=")
-	ErrIntMax     = errors.New("has wrong value of field, needs max=")
+	ErrIntMin     = errors.New("%s value is less than: %v")
+	ErrIntMax     = errors.New("%s value is great than: %v")
 )
 
 type ValidationError struct {
@@ -133,10 +133,10 @@ func validateField(filedName string, val reflect.Value, tag string) (ValidationE
 			vErr, err = validateStringForLen(filedName, val, seqOfLenChecks)
 		case (val.Kind() == reflect.String || val.Kind() == reflect.Int) && strings.HasPrefix(rules, inValidator):
 			seqOfInChecks := strings.TrimPrefix(rules, inValidator)
-			vErr, err = validateForIn(filedName, val, seqOfInChecks)
+			vErr = validateForIn(filedName, val, seqOfInChecks)
 		case val.Kind() == reflect.String && strings.HasPrefix(rules, regexpValidator):
 			regexpChecks := strings.TrimPrefix(rules, regexpValidator)
-			vErr, err = validateStringForRegexp(filedName, val, regexpChecks)
+			vErr = validateStringForRegexp(filedName, val, regexpChecks)
 		case val.Kind() == reflect.Int && (strings.HasPrefix(rules, minValidator) || strings.HasPrefix(rules, maxValidator)):
 			vErr, err = validateIntForMinMax(filedName, val, rules)
 		default:
@@ -208,12 +208,12 @@ func validateStringForLen(filedName string, val reflect.Value, rules string) (Va
 	return validateErrs, nil
 }
 
-func validateForIn(filedName string, val reflect.Value, rules string) (ValidationErrors, error) {
+func validateForIn(filedName string, val reflect.Value, rules string) ValidationErrors {
 	var validateErrs ValidationErrors
 
 	for _, rule := range strings.Split(rules, separatorOr) {
 		if rule == fmt.Sprint(val.Interface()) {
-			return nil, nil
+			return nil
 		}
 	}
 
@@ -223,15 +223,15 @@ func validateForIn(filedName string, val reflect.Value, rules string) (Validatio
 		Err:   fmt.Errorf(ErrIn.Error(), filedName, rules),
 	})
 
-	return validateErrs, nil
+	return validateErrs
 }
 
-func validateStringForRegexp(filedName string, val reflect.Value, rule string) (ValidationErrors, error) {
+func validateStringForRegexp(filedName string, val reflect.Value, rule string) ValidationErrors {
 	var validateErrs ValidationErrors
 
 	regexp := regexp.MustCompile(rule)
 	if regexp.MatchString(val.String()) {
-		return nil, nil
+		return nil
 	}
 
 	validateErrs = append(validateErrs, ValidationError{
@@ -240,7 +240,7 @@ func validateStringForRegexp(filedName string, val reflect.Value, rule string) (
 		Err:   fmt.Errorf(ErrStrRegexp.Error(), filedName, rule),
 	})
 
-	return validateErrs, nil
+	return validateErrs
 }
 
 func validateIntForMinMax(filedName string, val reflect.Value, rule string) (ValidationErrors, error) {
@@ -256,12 +256,13 @@ func validateIntForMinMax(filedName string, val reflect.Value, rule string) (Val
 	case strings.HasPrefix(rule, minValidator):
 		needMin, err = strconv.Atoi(strings.TrimPrefix(rule, minValidator))
 		checkIsMin = true
-		maxOrMinErr = fmt.Errorf("%w%v", ErrIntMin, needMin)
+		maxOrMinErr = fmt.Errorf(ErrIntMin.Error(), filedName, needMin)
 	case strings.HasPrefix(rule, maxValidator):
 		needMax, err = strconv.Atoi(strings.TrimPrefix(rule, maxValidator))
 		checkIsMax = true
-		maxOrMinErr = fmt.Errorf("%w%v", ErrIntMax, needMax)
+		maxOrMinErr = fmt.Errorf(ErrIntMax.Error(), filedName, needMax)
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("in conversion of string %v to int has got an error: %w", rule, err)
 	}
