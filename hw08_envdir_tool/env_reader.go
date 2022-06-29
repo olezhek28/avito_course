@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"os"
 	"path"
@@ -25,7 +25,7 @@ type Environment map[string]EnvValue
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-	fileInfos, err := ioutil.ReadDir(dir)
+	fileInfos, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to read dir")
 	}
@@ -47,9 +47,15 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, err
 		}
 
+		var info fs.FileInfo
+		info, err = fInfo.Info()
+		if err != nil {
+			return nil, err
+		}
+
 		env[fInfo.Name()] = EnvValue{
 			Value:      val,
-			NeedRemove: fInfo.Size() == 0,
+			NeedRemove: info.Size() == 0,
 		}
 	}
 
