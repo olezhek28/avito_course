@@ -40,7 +40,7 @@ type ValidationError struct {
 }
 
 func (v *ValidationError) Error() string {
-	return fmt.Sprintf("поле %v: \"%v\" %v", v.Field, v.Value, v.Err)
+	return fmt.Sprintf("%v: \"%v\" %v", v.Field, v.Value, v.Err)
 }
 
 type ValidationErrors []ValidationError
@@ -64,7 +64,7 @@ func (v ValidationErrors) wrongFields() string {
 		case int64:
 			buffer.WriteString(fmt.Sprint(typeField))
 		default:
-			panic("you should add more types")
+			panic("unknown type") // only tests
 		}
 		buffer.WriteString("\n")
 	}
@@ -100,18 +100,18 @@ func Validate(v interface{}) error {
 	return nil
 }
 
-func validate(filedName string, val reflect.Value, filedType reflect.Type, tag string) (ValidationErrors, error) {
+func validate(fieldName string, val reflect.Value, filedType reflect.Type, tag string) (ValidationErrors, error) {
 	var validateErrs ValidationErrors
 	var err error
 
 	//nolint:exhaustive
 	switch filedType.Kind() {
 	case reflect.String, reflect.Int:
-		validateErrs, err = validateField(filedName, val, tag)
+		validateErrs, err = validateField(fieldName, val, tag)
 	case reflect.Slice:
-		validateErrs, err = validateSlice(filedName, val, tag)
+		validateErrs, err = validateSlice(fieldName, val, tag)
 	default:
-		panic("you should add more types")
+		return nil, fmt.Errorf("unknown type")
 	}
 
 	if err != nil {
@@ -121,7 +121,7 @@ func validate(filedName string, val reflect.Value, filedType reflect.Type, tag s
 	return validateErrs, nil
 }
 
-func validateField(filedName string, val reflect.Value, tag string) (ValidationErrors, error) {
+func validateField(fieldName string, val reflect.Value, tag string) (ValidationErrors, error) {
 	var validateErrs ValidationErrors
 	var err error
 
@@ -129,16 +129,16 @@ func validateField(filedName string, val reflect.Value, tag string) (ValidationE
 		var vErr ValidationErrors
 		switch {
 		case val.Kind() == reflect.String && strings.HasPrefix(rules, lenValidator):
-			seqOfLenChecks := strings.TrimPrefix(rules, lenValidator)
-			vErr, err = validateStringForLen(filedName, val, seqOfLenChecks)
+			rule := strings.TrimPrefix(rules, lenValidator)
+			vErr, err = validateStringForLen(fieldName, val, rule)
 		case (val.Kind() == reflect.String || val.Kind() == reflect.Int) && strings.HasPrefix(rules, inValidator):
-			seqOfInChecks := strings.TrimPrefix(rules, inValidator)
-			vErr = validateForIn(filedName, val, seqOfInChecks)
+			rule := strings.TrimPrefix(rules, inValidator)
+			vErr = validateForIn(fieldName, val, rule)
 		case val.Kind() == reflect.String && strings.HasPrefix(rules, regexpValidator):
-			regexpChecks := strings.TrimPrefix(rules, regexpValidator)
-			vErr = validateStringForRegexp(filedName, val, regexpChecks)
+			rule := strings.TrimPrefix(rules, regexpValidator)
+			vErr = validateStringForRegexp(fieldName, val, rule)
 		case val.Kind() == reflect.Int && (strings.HasPrefix(rules, minValidator) || strings.HasPrefix(rules, maxValidator)):
-			vErr, err = validateIntForMinMax(filedName, val, rules)
+			vErr, err = validateIntForMinMax(fieldName, val, rules)
 		default:
 			return nil, ErrInvalidTag
 		}
@@ -153,13 +153,13 @@ func validateField(filedName string, val reflect.Value, tag string) (ValidationE
 	return validateErrs, nil
 }
 
-func validateSlice(filedName string, val reflect.Value, tag string) (ValidationErrors, error) {
+func validateSlice(fieldName string, val reflect.Value, tag string) (ValidationErrors, error) {
 	var validateErrs ValidationErrors
 	var err error
 
 	if val.Len() == 0 {
 		validateErrs = append(validateErrs, ValidationError{
-			Field: filedName,
+			Field: fieldName,
 			Value: fmt.Sprint(val.Interface()),
 			Err:   ErrEmptySlice,
 		})
@@ -171,9 +171,9 @@ func validateSlice(filedName string, val reflect.Value, tag string) (ValidationE
 		//nolint:exhaustive
 		switch val.Index(0).Kind() {
 		case reflect.String, reflect.Int:
-			vErr, err = validateField(filedName, val.Index(i), tag)
+			vErr, err = validateField(fieldName, val.Index(i), tag)
 		default:
-			panic("you should add more types")
+			return nil, fmt.Errorf("unknown type")
 		}
 		if err != nil {
 			return nil, err
@@ -185,7 +185,7 @@ func validateSlice(filedName string, val reflect.Value, tag string) (ValidationE
 	return validateErrs, nil
 }
 
-func validateStringForLen(filedName string, val reflect.Value, rules string) (ValidationErrors, error) {
+func validateStringForLen(fieldName string, val reflect.Value, rules string) (ValidationErrors, error) {
 	var validateErrs ValidationErrors
 
 	for _, rule := range strings.Split(rules, separatorOr) {
@@ -200,15 +200,15 @@ func validateStringForLen(filedName string, val reflect.Value, rules string) (Va
 	}
 
 	validateErrs = append(validateErrs, ValidationError{
-		Field: filedName,
+		Field: fieldName,
 		Value: val.String(),
-		Err:   fmt.Errorf(ErrStrLen.Error(), filedName, rules),
+		Err:   fmt.Errorf(ErrStrLen.Error(), fieldName, rules),
 	})
 
 	return validateErrs, nil
 }
 
-func validateForIn(filedName string, val reflect.Value, rules string) ValidationErrors {
+func validateForIn(fieldName string, val reflect.Value, rules string) ValidationErrors {
 	var validateErrs ValidationErrors
 
 	for _, rule := range strings.Split(rules, separatorOr) {
@@ -218,15 +218,15 @@ func validateForIn(filedName string, val reflect.Value, rules string) Validation
 	}
 
 	validateErrs = append(validateErrs, ValidationError{
-		Field: filedName,
+		Field: fieldName,
 		Value: fmt.Sprint(val.Interface()),
-		Err:   fmt.Errorf(ErrIn.Error(), filedName, rules),
+		Err:   fmt.Errorf(ErrIn.Error(), fieldName, rules),
 	})
 
 	return validateErrs
 }
 
-func validateStringForRegexp(filedName string, val reflect.Value, rule string) ValidationErrors {
+func validateStringForRegexp(fieldName string, val reflect.Value, rule string) ValidationErrors {
 	var validateErrs ValidationErrors
 
 	regexp := regexp.MustCompile(rule)
@@ -235,43 +235,44 @@ func validateStringForRegexp(filedName string, val reflect.Value, rule string) V
 	}
 
 	validateErrs = append(validateErrs, ValidationError{
-		Field: filedName,
-		Value: val.String(),
-		Err:   fmt.Errorf(ErrStrRegexp.Error(), filedName, rule),
+		Field: fieldName,
+		Value: fmt.Sprint(val.Interface()),
+		Err:   fmt.Errorf(ErrStrRegexp.Error(), fieldName, rule),
 	})
 
 	return validateErrs
 }
 
-func validateIntForMinMax(filedName string, val reflect.Value, rule string) (ValidationErrors, error) {
+func validateIntForMinMax(fieldName string, val reflect.Value, rule string) (ValidationErrors, error) {
 	var validateErrs ValidationErrors
 
-	var needMin int
-	var needMax int
-	var checkIsMin bool
-	var checkIsMax bool
-	var maxOrMinErr error
-	var err error
 	switch {
 	case strings.HasPrefix(rule, minValidator):
-		needMin, err = strconv.Atoi(strings.TrimPrefix(rule, minValidator))
-		checkIsMin = true
-		maxOrMinErr = fmt.Errorf(ErrIntMin.Error(), filedName, needMin)
-	case strings.HasPrefix(rule, maxValidator):
-		needMax, err = strconv.Atoi(strings.TrimPrefix(rule, maxValidator))
-		checkIsMax = true
-		maxOrMinErr = fmt.Errorf(ErrIntMax.Error(), filedName, needMax)
-	}
+		minLimit, err := strconv.Atoi(strings.TrimPrefix(rule, minValidator))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert string %v to int: %w", rule, err)
+		}
 
-	if err != nil {
-		return nil, fmt.Errorf("in conversion of string %v to int has got an error: %w", rule, err)
-	}
-	if !(checkIsMin && int64(needMin) <= val.Int() || checkIsMax && int64(needMax) >= val.Int()) {
-		validateErrs = append(validateErrs, ValidationError{
-			Field: filedName,
-			Value: val.Int(),
-			Err:   maxOrMinErr,
-		})
+		if val.Int() < int64(minLimit) {
+			validateErrs = append(validateErrs, ValidationError{
+				Field: fieldName,
+				Value: fmt.Sprint(val.Interface()),
+				Err:   fmt.Errorf(ErrIntMin.Error(), fieldName, minLimit),
+			})
+		}
+	case strings.HasPrefix(rule, maxValidator):
+		maxLimit, err := strconv.Atoi(strings.TrimPrefix(rule, maxValidator))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert string %v to int: %w", rule, err)
+		}
+
+		if val.Int() > int64(maxLimit) {
+			validateErrs = append(validateErrs, ValidationError{
+				Field: fieldName,
+				Value: fmt.Sprint(val.Interface()),
+				Err:   fmt.Errorf(ErrIntMax.Error(), fieldName, maxLimit),
+			})
+		}
 	}
 
 	return validateErrs, nil
