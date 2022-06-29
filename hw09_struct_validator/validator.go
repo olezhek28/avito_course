@@ -104,6 +104,7 @@ func validate(filedName string, val reflect.Value, filedType reflect.Type, tag s
 	var validateErrs ValidationErrors
 	var err error
 
+	//nolint:exhaustive
 	switch filedType.Kind() {
 	case reflect.String, reflect.Int:
 		validateErrs, err = validateField(filedName, val, tag)
@@ -166,6 +167,8 @@ func validateSlice(filedName string, val reflect.Value, tag string) (ValidationE
 
 	for i := 0; i < val.Len(); i++ {
 		var vErr ValidationErrors
+
+		//nolint:exhaustive
 		switch val.Index(0).Kind() {
 		case reflect.String, reflect.Int:
 			vErr, err = validateField(filedName, val.Index(i), tag)
