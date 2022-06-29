@@ -1,6 +1,6 @@
 module github.com/olezhek28/avito_course/hw05_parallel_execution
 
-go 1.16
+go 1.18
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
