@@ -1,17 +1,16 @@
 package hw10programoptimization
 
 import (
+	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
 
-	"github.com/valyala/fastjson"
+	"github.com/buger/jsonparser"
 )
 
 type User struct {
-	ID       int
+	ID       int64
 	Name     string
 	Username string
 	Email    string
@@ -23,56 +22,63 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
+	return countDomains(r, domain)
 }
 
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var p fastjson.Parser
-		v, errParse := p.Parse(line)
-		if errParse != nil {
-			return users{}, err
-		}
-
-		result[i] = User{
-			ID:       v.GetInt("Id"),
-			Name:     string(v.GetStringBytes("Name")),
-			Username: string(v.GetStringBytes("Username")),
-			Email:    string(v.GetStringBytes("Email")),
-			Phone:    string(v.GetStringBytes("Phone")),
-			Password: string(v.GetStringBytes("Password")),
-			Address:  string(v.GetStringBytes("Address")),
-		}
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+func countDomains(r io.Reader, domain string) (DomainStat, error) {
+	scanner := bufio.NewScanner(r)
+	res := make(DomainStat)
+	for scanner.Scan() {
+		user, err := getUserInfo(scanner.Bytes())
 		if err != nil {
 			return nil, err
 		}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		if !strings.Contains(user.Email, "@") {
+			return nil, fmt.Errorf("email does not contain @")
+		}
+
+		if strings.Contains(user.Email, domain) {
+			tail := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			res[tail]++
 		}
 	}
-	return result, nil
+
+	return res, nil
+}
+
+func getUserInfo(line []byte) (*User, error) {
+	user := new(User)
+	var err error
+	user.ID, err = jsonparser.GetInt([]byte(line), "Id")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Username, err = jsonparser.GetString(line, "Username")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Email, err = jsonparser.GetString(line, "Email")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Phone, err = jsonparser.GetString(line, "Phone")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password, err = jsonparser.GetString(line, "Password")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Address, err = jsonparser.GetString(line, "Address")
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
