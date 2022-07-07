@@ -2,12 +2,14 @@ package hw10programoptimization
 
 import (
 	"bufio"
-	"fmt"
+	"errors"
 	"io"
 	"strings"
 
 	"github.com/buger/jsonparser"
 )
+
+var invalidEmail = errors.New("email does not contain @")
 
 type User struct {
 	ID       int64
@@ -35,7 +37,7 @@ func countDomains(r io.Reader, domain string) (DomainStat, error) {
 		}
 
 		if !strings.Contains(user.Email, "@") {
-			return nil, fmt.Errorf("email does not contain @")
+			return nil, invalidEmail
 		}
 
 		if strings.Contains(user.Email, domain) {
