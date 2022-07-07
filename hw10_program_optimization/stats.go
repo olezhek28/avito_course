@@ -9,7 +9,7 @@ import (
 	"github.com/buger/jsonparser"
 )
 
-var invalidEmail = errors.New("email does not contain @")
+var errInvalidEmail = errors.New("email does not contain @")
 
 type User struct {
 	ID       int64
@@ -37,7 +37,7 @@ func countDomains(r io.Reader, domain string) (DomainStat, error) {
 		}
 
 		if !strings.Contains(user.Email, "@") {
-			return nil, invalidEmail
+			return nil, errInvalidEmail
 		}
 
 		if strings.Contains(user.Email, domain) {
@@ -52,7 +52,7 @@ func countDomains(r io.Reader, domain string) (DomainStat, error) {
 func getUserInfo(line []byte) (*User, error) {
 	user := new(User)
 	var err error
-	user.ID, err = jsonparser.GetInt([]byte(line), "Id")
+	user.ID, err = jsonparser.GetInt(line, "Id")
 	if err != nil {
 		return nil, err
 	}

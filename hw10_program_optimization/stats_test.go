@@ -38,7 +38,7 @@ func TestGetDomainStat(t *testing.T) {
 	t.Run("email without @", func(t *testing.T) {
 		_, err := GetDomainStat(bytes.NewBufferString(dataWithInvalidEmail), "gov")
 		require.Error(t, err)
-		require.Equal(t, err, invalidEmail)
+		require.Equal(t, err, errInvalidEmail)
 	})
 
 	t.Run("email json", func(t *testing.T) {
