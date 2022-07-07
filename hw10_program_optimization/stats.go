@@ -40,7 +40,7 @@ func countDomains(r io.Reader, domain string) (DomainStat, error) {
 			return nil, errInvalidEmail
 		}
 
-		if strings.Contains(user.Email, domain) {
+		if strings.HasSuffix(user.Email, domain) {
 			tail := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
 			res[tail]++
 		}
