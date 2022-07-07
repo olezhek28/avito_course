@@ -1,12 +1,13 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"regexp"
 	"strings"
+
+	"github.com/valyala/fastjson"
 )
 
 type User struct {
@@ -39,11 +40,21 @@ func getUsers(r io.Reader) (result users, err error) {
 
 	lines := strings.Split(string(content), "\n")
 	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
+		var p fastjson.Parser
+		v, errParse := p.Parse(line)
+		if errParse != nil {
+			return users{}, err
 		}
-		result[i] = user
+
+		result[i] = User{
+			ID:       v.GetInt("Id"),
+			Name:     string(v.GetStringBytes("Name")),
+			Username: string(v.GetStringBytes("Username")),
+			Email:    string(v.GetStringBytes("Email")),
+			Phone:    string(v.GetStringBytes("Phone")),
+			Password: string(v.GetStringBytes("Password")),
+			Address:  string(v.GetStringBytes("Address")),
+		}
 	}
 	return
 }

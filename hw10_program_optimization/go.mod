@@ -2,7 +2,10 @@ module github.com/olezhek28/avito_course/hw10_program_optimization
 
 go 1.18
 
-require github.com/stretchr/testify v1.7.0
+require (
+	github.com/stretchr/testify v1.7.0
+	github.com/valyala/fastjson v1.6.3
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
