@@ -33,10 +33,10 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 
 func (c *client) Connect() error {
 	if c.in == nil {
-		return fmt.Errorf("in is nil")
+		return fmt.Errorf("in is invalid")
 	}
 	if c.out == nil {
-		return fmt.Errorf("out is nil")
+		return fmt.Errorf("out is invalid")
 	}
 
 	con, err := net.DialTimeout("tcp", c.address, c.timeout)
@@ -54,8 +54,7 @@ func (c *client) Close() error {
 }
 
 func (c *client) Send() error {
-	_, err := io.Copy(c.con, c.in)
-	if err != nil {
+	if _, err := io.Copy(c.con, c.in); err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
 
@@ -63,8 +62,7 @@ func (c *client) Send() error {
 }
 
 func (c *client) Receive() error {
-	_, err := io.Copy(c.out, c.con)
-	if err != nil {
+	if _, err := io.Copy(c.out, c.con); err != nil {
 		return fmt.Errorf("failed to receive message: %w", err)
 	}
 
