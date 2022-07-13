@@ -50,6 +50,6 @@ func main() {
 	select {
 	case <-sigint:
 	case <-res:
-		//close(sigint)
+		close(sigint)
 	}
 }
