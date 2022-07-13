@@ -1,16 +1,18 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
-	"fmt"
+	"bufio"
+	"errors"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
+
+	"github.com/buger/jsonparser"
 )
 
+var errInvalidEmail = errors.New("email does not contain @")
+
 type User struct {
-	ID       int
+	ID       int64
 	Name     string
 	Username string
 	Email    string
@@ -22,46 +24,63 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
+	return countDomains(r, domain)
 }
 
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
-	result := make(DomainStat)
-
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+func countDomains(r io.Reader, domain string) (DomainStat, error) {
+	scanner := bufio.NewScanner(r)
+	res := make(DomainStat)
+	for scanner.Scan() {
+		user, err := getUserInfo(scanner.Bytes())
 		if err != nil {
 			return nil, err
 		}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		if !strings.Contains(user.Email, "@") {
+			return nil, errInvalidEmail
+		}
+
+		if strings.HasSuffix(user.Email, domain) {
+			tail := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
+			res[tail]++
 		}
 	}
-	return result, nil
+
+	return res, nil
+}
+
+func getUserInfo(line []byte) (*User, error) {
+	user := new(User)
+	var err error
+	user.ID, err = jsonparser.GetInt(line, "Id")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Username, err = jsonparser.GetString(line, "Username")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Email, err = jsonparser.GetString(line, "Email")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Phone, err = jsonparser.GetString(line, "Phone")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password, err = jsonparser.GetString(line, "Password")
+	if err != nil {
+		return nil, err
+	}
+
+	user.Address, err = jsonparser.GetString(line, "Address")
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
