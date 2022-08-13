@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// DeleteEvent - Delete event
+// DeleteEvent ...
 func (i *Implementation) DeleteEvent(ctx context.Context, req *desc.DeleteEventRequest) (*emptypb.Empty, error) {
 	return nil, nil
 }

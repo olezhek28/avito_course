@@ -6,6 +6,7 @@ import (
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 )
 
-func (i *Implementation) GetEventListForMonth(ctx context.Context, req *desc.GetEventListForMonthRequest) (*desc.GetEventListForMonthResponse, error) {
+// GetEventListForWeek ...
+func (i *Implementation) GetEventListForWeek(ctx context.Context, req *desc.GetEventListForWeekRequest) (*desc.GetEventListForWeekResponse, error) {
 	return nil, nil
 }

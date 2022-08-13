@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// UpdateEvent ...
 func (i *Implementation) UpdateEvent(ctx context.Context, req *desc.UpdateEventRequest) (*emptypb.Empty, error) {
 	return nil, nil
 }
