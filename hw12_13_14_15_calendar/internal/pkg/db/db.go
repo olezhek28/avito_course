@@ -20,27 +20,27 @@ type DB struct {
 	pool *pgxpool.Pool
 }
 
-// GetContext is a wrapped method pgxscan.Get
+// GetContext is a wrapped method pgxscan.Get ...
 func (db *DB) GetContext(ctx context.Context, dest interface{}, q Query, args ...interface{}) error {
 	return pgxscan.Get(ctx, db.pool, dest, q.QueryRaw, args...)
 }
 
-// SelectContext is a wrapped method pgxscan.Select
+// SelectContext is a wrapped method pgxscan.Select ...
 func (db *DB) SelectContext(ctx context.Context, dest interface{}, q Query, args ...interface{}) error {
 	return pgxscan.Select(ctx, db.pool, dest, q.QueryRaw, args...)
 }
 
-// ExecContext is a wrapped method pgxpool.Exec
+// ExecContext is a wrapped method pgxpool.Exec ...
 func (db *DB) ExecContext(ctx context.Context, q Query, args ...interface{}) (pgconn.CommandTag, error) {
 	return db.pool.Exec(ctx, q.QueryRaw, args...)
 }
 
-// QueryContext is a wrapped method pgxpool.Query
+// QueryContext is a wrapped method pgxpool.Query ...
 func (db *DB) QueryContext(ctx context.Context, q Query, args ...interface{}) (pgx.Rows, error) {
 	return db.pool.Query(ctx, q.QueryRaw, args...)
 }
 
-// QueryRowContext is a wrapped method pgxpool.QueryRow
+// QueryRowContext is a wrapped method pgxpool.QueryRow ...
 func (db *DB) QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgx.Row {
 	return db.pool.QueryRow(ctx, q.QueryRaw, args...)
 }

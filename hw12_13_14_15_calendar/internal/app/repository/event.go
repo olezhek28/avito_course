@@ -1,6 +1,8 @@
 package repository
 
-//go:generate mockgen --build_flags=--mod=mod -destination=mocks/mock_event_repository.go -package=mocks . EventRepository
+//go:generate mkdir -p mocks
+//go:generate rm -rf ./mocks/*_minimock.go
+//go:generate minimock -i EventRepository -o ./mocks/ -s "_minimock.go"
 
 import (
 	"context"
