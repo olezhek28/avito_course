@@ -607,10 +607,10 @@ func (m *GetEventListForWeekRequest) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetDate()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetWeekStart()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetEventListForWeekRequestValidationError{
-				field:  "Date",
+				field:  "WeekStart",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -762,10 +762,10 @@ func (m *GetEventListForMonthRequest) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetDate()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetMonthStart()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetEventListForMonthRequestValidationError{
-				field:  "Date",
+				field:  "MonthStart",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

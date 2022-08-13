@@ -4,6 +4,10 @@ DOCKER_IMG="calendar:develop"
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
+
+LOCAL_MIGRATION_DIR=./migrations
+LOCAL_MIGRATION_DSN="host=localhost port=54321 dbname=event-service user=event-service-user password=event-service-password sslmode=disable"
+
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
@@ -37,6 +41,22 @@ lint: install-lint-deps
 	golangci-lint run ./...
 
 .PHONY: build run build-img run-img version test lint
+
+.PHONY: install-goose
+.install-goose:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
+.PHONY: local-migration-status
+local-migration-status:
+	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v
+
+.PHONY: local-migration-up
+local-migration-up:
+	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} up -v
+
+.PHONY: local-migration-down
+local-migration-down:
+	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} down -v
 
 PHONY: generate
 generate:

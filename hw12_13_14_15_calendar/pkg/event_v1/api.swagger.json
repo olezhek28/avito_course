@@ -130,7 +130,7 @@
         },
         "parameters": [
           {
-            "name": "date",
+            "name": "month_start",
             "description": "Дата для которой нужно вернуть список событий за месяц.",
             "in": "query",
             "required": false,
@@ -163,7 +163,7 @@
         },
         "parameters": [
           {
-            "name": "date",
+            "name": "week_start",
             "description": "Дата для которой нужно вернуть список событий за неделю.",
             "in": "query",
             "required": false,
