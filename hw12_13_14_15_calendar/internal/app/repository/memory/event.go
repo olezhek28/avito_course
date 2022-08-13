@@ -17,7 +17,7 @@ func NewEventRepository() repository.EventRepository {
 	return &eventRepository{}
 }
 
-func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) error {
+func (r *eventRepository) CreateEvent(ctx context.Context, event *model.EventInfo) error {
 	//TODO implement me
 	panic("implement me")
 }

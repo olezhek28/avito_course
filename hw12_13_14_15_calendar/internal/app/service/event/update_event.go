@@ -11,6 +11,9 @@ import (
 
 // UpdateEvent ...
 func (s *Service) UpdateEvent(ctx context.Context, eventID sql.NullInt64, updateEvent *model.UpdateEvent) error {
+	if updateEvent == nil {
+		return status.Error(codes.InvalidArgument, "parameters for updating are not set")
+	}
 	if !eventID.Valid {
 		return status.Error(codes.InvalidArgument, "eventID is empty")
 	}

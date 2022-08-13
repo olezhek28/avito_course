@@ -19,7 +19,7 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 	}
 }
 
-func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) error {
+func (r *eventRepository) CreateEvent(ctx context.Context, event *model.EventInfo) error {
 	//TODO implement me
 	panic("implement me")
 }

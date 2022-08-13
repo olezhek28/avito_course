@@ -2,11 +2,16 @@ package model
 
 import "time"
 
+// EventInfo ...
+type EventInfo struct {
+	Title     string     `db:"title"`
+	Date      *time.Time `db:"date"`
+	Owner     string     `db:"owner"`
+	CreatedAt *time.Time `db:"created_at"`
+}
+
 // Event ...
 type Event struct {
-	ID        int64      `json:"id"`
-	Title     string     `json:"title"`
-	Date      *time.Time `json:"date"`
-	Owner     string     `json:"owner"`
-	CreatedAt *time.Time `db:"created_at"`
+	ID        int64 `db:"id"`
+	EventInfo EventInfo
 }
