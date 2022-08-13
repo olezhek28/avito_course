@@ -72,6 +72,8 @@ message Event {
   int64 id = 1;
   // Информация о событии
   EventInfo event_info = 2;
+  // Дата создания события
+  google.protobuf.Timestamp created_at = 3;
 }
 
 message CreateEventRequest {
@@ -79,9 +81,19 @@ message CreateEventRequest {
 }
 
 message UpdateEventRequest {
+  // Информация о событии для обновления
+  message UpdateEventInfo {
+    // Название события
+    google.protobuf.StringValue title = 1;
+    // Дата события
+    google.protobuf.Timestamp Date = 2;
+    // Владелец события
+    google.protobuf.StringValue owner = 3;
+  }
+
   // Идентификатор заметки
   google.protobuf.Int64Value id = 1;
-  EventInfo event_info = 2;
+  UpdateEventInfo update_event_info = 2;
 }
 
 message DeleteEventRequest {

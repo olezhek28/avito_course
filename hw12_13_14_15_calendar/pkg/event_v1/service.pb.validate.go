@@ -130,6 +130,16 @@ func (m *Event) Validate() error {
 		}
 	}
 
+	if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EventValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -289,10 +299,10 @@ func (m *UpdateEventRequest) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetEventInfo()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetUpdateEventInfo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateEventRequestValidationError{
-				field:  "EventInfo",
+				field:  "UpdateEventInfo",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -899,6 +909,104 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEventListForMonthResponseValidationError{}
+
+// Validate checks the field values on UpdateEventRequest_UpdateEventInfo with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *UpdateEventRequest_UpdateEventInfo) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetTitle()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "Title",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetDate()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "Date",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "Owner",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateEventRequest_UpdateEventInfoValidationError is the validation error
+// returned by UpdateEventRequest_UpdateEventInfo.Validate if the designated
+// constraints aren't met.
+type UpdateEventRequest_UpdateEventInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateEventRequest_UpdateEventInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateEventRequest_UpdateEventInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateEventRequest_UpdateEventInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateEventRequest_UpdateEventInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateEventRequest_UpdateEventInfoValidationError) ErrorName() string {
+	return "UpdateEventRequest_UpdateEventInfoValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateEventRequest_UpdateEventInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateEventRequest_UpdateEventInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateEventRequest_UpdateEventInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateEventRequest_UpdateEventInfoValidationError{}
 
 // Validate checks the field values on GetEventListForDayResponse_Result with
 // the rules defined in the proto definition for this message. If any rules

@@ -211,6 +211,25 @@
     }
   },
   "definitions": {
+    "UpdateEventRequestUpdateEventInfo": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Название события"
+        },
+        "Date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата события"
+        },
+        "owner": {
+          "type": "string",
+          "title": "Владелец события"
+        }
+      },
+      "title": "Информация о событии для обновления"
+    },
     "eventCreateEventRequest": {
       "type": "object",
       "properties": {
@@ -230,6 +249,11 @@
         "event_info": {
           "$ref": "#/definitions/eventEventInfo",
           "title": "Информация о событии"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата создания события"
         }
       }
     },
@@ -323,8 +347,8 @@
           "format": "int64",
           "title": "Идентификатор заметки"
         },
-        "event_info": {
-          "$ref": "#/definitions/eventEventInfo"
+        "update_event_info": {
+          "$ref": "#/definitions/UpdateEventRequestUpdateEventInfo"
         }
       }
     },
