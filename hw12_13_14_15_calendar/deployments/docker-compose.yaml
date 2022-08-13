@@ -1,1 +1,16 @@
-version: "3"
+version: '3.8'
+
+volumes:
+  postgres_volume:
+
+services:
+  db:
+    image: postgres:14-alpine3.15
+    environment:
+      - "POSTGRES_DB=event-service"
+      - "POSTGRES_USER=event-service-user"
+      - "POSTGRES_PASSWORD=event-service-password"
+    ports:
+      - "54321:5432"
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
