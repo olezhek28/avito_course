@@ -9,7 +9,7 @@ import (
 // Client ...
 type Client interface {
 	Close() error
-	DB() *pgxpool.Pool
+	DB() *DB
 }
 
 type client struct {
@@ -45,6 +45,6 @@ func (c *client) Close() error {
 	return nil
 }
 
-func (c *client) DB() *pgxpool.Pool {
-	return c.db.pool
+func (c *client) DB() *DB {
+	return c.db
 }

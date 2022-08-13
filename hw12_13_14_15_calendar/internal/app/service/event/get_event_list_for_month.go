@@ -8,6 +8,6 @@ import (
 )
 
 // GetEventListForMonth ...
-func (s *Service) GetEventListForMonth(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	return s.eventRepository.GetEventListForMonth(ctx, date)
+func (s *Service) GetEventListForMonth(ctx context.Context, weekStart time.Time) ([]*model.Event, error) {
+	return s.eventRepository.GetEventListForMonth(ctx, weekStart)
 }

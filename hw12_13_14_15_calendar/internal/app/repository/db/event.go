@@ -4,9 +4,17 @@ import (
 	"context"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/table"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/utils"
+)
+
+const (
+	daysInWeek  = 7
+	daysInMonth = 30
 )
 
 type eventRepository struct {
@@ -19,32 +27,157 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 	}
 }
 
+// CreateEvent ...
 func (r *eventRepository) CreateEvent(ctx context.Context, event *model.EventInfo) error {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Insert(table.Event).
+		PlaceholderFormat(sq.Dollar).
+		Columns("title", "date", "owner").
+		Values(event.Title, event.Date, event.Owner)
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	q := db.Query{
+		Name:     "repository.CreateEvent",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, v...)
+
+	return err
 }
 
+// UpdateEvent ...
 func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) error {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Update(table.Event).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{"id": eventID})
+
+	if updateEvent.Title.Valid {
+		builder = builder.Set("title", updateEvent.Title.String)
+	}
+	if updateEvent.Date.Valid {
+		builder = builder.Set("date", updateEvent.Date.Time)
+	}
+	if updateEvent.Owner.Valid {
+		builder = builder.Set("owner", updateEvent.Owner.String)
+	}
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	q := db.Query{
+		Name:     "repository.UpdateEvent",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, v...)
+
+	return err
 }
 
+// DeleteEvent ...
 func (r *eventRepository) DeleteEvent(ctx context.Context, eventID int64) error {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Delete(table.Event).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{"id": eventID})
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	q := db.Query{
+		Name:     "repository.DeleteEvent",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, v...)
+
+	return err
 }
 
+// GetEventListForDay ...
 func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Select("id, title, date, owner, created_at").
+		PlaceholderFormat(sq.Dollar).
+		From(table.Event).
+		Where(sq.GtOrEq{"date": utils.BeginningOfDay(date)}).
+		Where(sq.LtOrEq{"date": utils.EndOfDay(date)})
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     "repository.GetEventListForDay",
+		QueryRaw: query,
+	}
+
+	var res []*model.Event
+	err = r.db.DB().SelectContext(ctx, &res, q, v...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
+// GetEventListForWeek ...
 func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart time.Time) ([]*model.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Select("id, title, date, owner, created_at").
+		PlaceholderFormat(sq.Dollar).
+		From(table.Event).
+		Where(sq.GtOrEq{"date": utils.BeginningOfDay(weekStart)}).
+		Where(sq.LtOrEq{"date": utils.EndOfDay(weekStart).AddDate(0, 0, daysInWeek)})
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     "repository.GetEventListForWeek",
+		QueryRaw: query,
+	}
+
+	var res []*model.Event
+	err = r.db.DB().SelectContext(ctx, &res, q, v...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
+// GetEventListForMonth ...
 func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart time.Time) ([]*model.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	builder := sq.Select("id, title, date, owner, created_at").
+		PlaceholderFormat(sq.Dollar).
+		From(table.Event).
+		Where(sq.GtOrEq{"date": utils.BeginningOfDay(monthStart)}).
+		Where(sq.LtOrEq{"date": utils.EndOfDay(monthStart).AddDate(0, 0, daysInMonth)})
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	q := db.Query{
+		Name:     "repository.GetEventListForWeek",
+		QueryRaw: query,
+	}
+
+	var res []*model.Event
+	err = r.db.DB().SelectContext(ctx, &res, q, v...)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
