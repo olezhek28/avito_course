@@ -118,7 +118,7 @@ message GetEventListForDayResponse {
 
 message GetEventListForWeekRequest {
   // Дата для которой нужно вернуть список событий за неделю
-  google.protobuf.Timestamp date = 1;
+  google.protobuf.Timestamp week_start = 1;
 }
 
 message GetEventListForWeekResponse {
@@ -133,7 +133,7 @@ message GetEventListForWeekResponse {
 
 message GetEventListForMonthRequest {
   // Дата для которой нужно вернуть список событий за месяц
-  google.protobuf.Timestamp date = 1;
+  google.protobuf.Timestamp month_start = 1;
 }
 
 message GetEventListForMonthResponse {

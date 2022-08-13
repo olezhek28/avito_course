@@ -9,7 +9,7 @@ import (
 
 // GetEventListForWeek ...
 func (i *Implementation) GetEventListForWeek(ctx context.Context, req *desc.GetEventListForWeekRequest) (*desc.GetEventListForWeekResponse, error) {
-	res, err := i.eventService.GetEventListForWeek(ctx, req.GetDate().AsTime())
+	res, err := i.eventService.GetEventListForWeek(ctx, req.GetWeekStart().AsTime())
 	if err != nil {
 		return nil, err
 	}

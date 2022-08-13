@@ -9,7 +9,7 @@ import (
 
 // GetEventListForMonth ...
 func (i *Implementation) GetEventListForMonth(ctx context.Context, req *desc.GetEventListForMonthRequest) (*desc.GetEventListForMonthResponse, error) {
-	res, err := i.eventService.GetEventListForMonth(ctx, req.GetDate().AsTime())
+	res, err := i.eventService.GetEventListForMonth(ctx, req.GetMonthStart().AsTime())
 	if err != nil {
 		return nil, err
 	}
