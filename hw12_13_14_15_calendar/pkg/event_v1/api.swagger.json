@@ -1,0 +1,365 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "service.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/event/v1/create": {
+      "post": {
+        "summary": "Создает новое событие",
+        "operationId": "EventServiceV1_CreateEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventCreateEventRequest"
+            }
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    },
+    "/event/v1/delete": {
+      "delete": {
+        "summary": "Удаляет событие по идентификатору",
+        "operationId": "EventServiceV1_DeleteEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Идентификатор заметки.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    },
+    "/event/v1/list/day": {
+      "get": {
+        "summary": "Возвращает список всех существующих событий за день",
+        "operationId": "EventServiceV1_GetEventListForDay",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventGetEventListForDayResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "date",
+            "description": "Дата для которой нужно вернуть список событий за день.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    },
+    "/event/v1/list/month": {
+      "get": {
+        "summary": "Возвращает список всех существующих событий за месяц",
+        "operationId": "EventServiceV1_GetEventListForMonth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventGetEventListForMonthResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "date",
+            "description": "Дата для которой нужно вернуть список событий за месяц.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    },
+    "/event/v1/list/week": {
+      "get": {
+        "summary": "Возвращает список всех существующих событий за неделю",
+        "operationId": "EventServiceV1_GetEventListForWeek",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventGetEventListForWeekResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "date",
+            "description": "Дата для которой нужно вернуть список событий за неделю.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    },
+    "/event/v1/update": {
+      "put": {
+        "summary": "Обновляет событие по идентификатору",
+        "operationId": "EventServiceV1_UpdateEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventUpdateEventRequest"
+            }
+          }
+        ],
+        "tags": [
+          "EventServiceV1"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "eventCreateEventRequest": {
+      "type": "object",
+      "properties": {
+        "event_info": {
+          "$ref": "#/definitions/eventEventInfo"
+        }
+      }
+    },
+    "eventEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор события"
+        },
+        "event_info": {
+          "$ref": "#/definitions/eventEventInfo",
+          "title": "Информация о событии"
+        }
+      }
+    },
+    "eventEventInfo": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "title": "Название события"
+        },
+        "Date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата события"
+        },
+        "owner": {
+          "type": "string",
+          "title": "Владелец события"
+        }
+      },
+      "title": "Информация о событии"
+    },
+    "eventGetEventListForDayResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/eventGetEventListForDayResponseResult"
+        }
+      }
+    },
+    "eventGetEventListForDayResponseResult": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventEvent"
+          },
+          "title": "Список событий за день"
+        }
+      },
+      "title": "Результат выполнения реализации метода API GetEventListForDay"
+    },
+    "eventGetEventListForMonthResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/eventGetEventListForMonthResponseResult"
+        }
+      }
+    },
+    "eventGetEventListForMonthResponseResult": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventEvent"
+          },
+          "title": "Список событий за месяц"
+        }
+      },
+      "title": "Результат выполнения реализации метода API GetEventListForDay"
+    },
+    "eventGetEventListForWeekResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/eventGetEventListForWeekResponseResult"
+        }
+      }
+    },
+    "eventGetEventListForWeekResponseResult": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventEvent"
+          },
+          "title": "Список событий за неделю"
+        }
+      },
+      "title": "Результат выполнения реализации метода API GetEventListForDay"
+    },
+    "eventUpdateEventRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор заметки"
+        },
+        "event_info": {
+          "$ref": "#/definitions/eventEventInfo"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

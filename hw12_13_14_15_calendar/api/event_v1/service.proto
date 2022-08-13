@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1;event_v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "validate/validate.proto";
+
+service EventServiceV1 {
+  // Создает новое событие
+  rpc CreateEvent (CreateEventRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/event/v1/create"
+      body: "*"
+    };
+  }
+
+  // Обновляет событие по идентификатору
+  rpc UpdateEvent (UpdateEventRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/event/v1/update"
+      body: "*"
+    };
+  }
+
+  // Удаляет событие по идентификатору
+  rpc DeleteEvent (DeleteEventRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/event/v1/delete"
+    };
+  }
+
+  // Возвращает список всех существующих событий за день
+  rpc GetEventListForDay (GetEventListForDayRequest) returns (GetEventListForDayResponse) {
+    option (google.api.http) = {
+      get: "/event/v1/list/day"
+    };
+  }
+
+  // Возвращает список всех существующих событий за неделю
+  rpc GetEventListForWeek (GetEventListForWeekRequest) returns (GetEventListForWeekResponse) {
+    option (google.api.http) = {
+      get: "/event/v1/list/week"
+    };
+  }
+
+  // Возвращает список всех существующих событий за месяц
+  rpc GetEventListForMonth (GetEventListForMonthRequest) returns (GetEventListForMonthResponse) {
+    option (google.api.http) = {
+      get: "/event/v1/list/month"
+    };
+  }
+}
+
+// Информация о событии
+message EventInfo {
+  // Название события
+  string title = 1;
+  // Дата события
+  google.protobuf.Timestamp Date = 2;
+  // Владелец события
+  string owner = 3;
+}
+
+message Event {
+  // Идентификатор события
+  int64 id = 1;
+  // Информация о событии
+  EventInfo event_info = 2;
+}
+
+message CreateEventRequest {
+  EventInfo event_info = 1 [(validate.rules).message.required = true];
+}
+
+message UpdateEventRequest {
+  // Идентификатор заметки
+  google.protobuf.Int64Value id = 1;
+  EventInfo event_info = 2;
+}
+
+message DeleteEventRequest {
+  // Идентификатор заметки
+  google.protobuf.Int64Value id = 1;
+}
+
+message GetEventListForDayRequest {
+  // Дата для которой нужно вернуть список событий за день
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetEventListForDayResponse {
+  // Результат выполнения реализации метода API GetEventListForDay
+  message Result {
+    // Список событий за день
+    repeated Event events = 1;
+  }
+
+  Result result = 1;
+}
+
+message GetEventListForWeekRequest {
+  // Дата для которой нужно вернуть список событий за неделю
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetEventListForWeekResponse {
+  // Результат выполнения реализации метода API GetEventListForDay
+  message Result {
+    // Список событий за неделю
+    repeated Event events = 1;
+  }
+
+  Result result = 1;
+}
+
+message GetEventListForMonthRequest {
+  // Дата для которой нужно вернуть список событий за месяц
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetEventListForMonthResponse {
+  // Результат выполнения реализации метода API GetEventListForDay
+  message Result {
+    // Список событий за месяц
+    repeated Event events = 1;
+  }
+
+  Result result = 1;
+}
