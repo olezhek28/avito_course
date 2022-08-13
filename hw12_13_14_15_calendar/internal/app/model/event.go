@@ -4,8 +4,9 @@ import "time"
 
 // Event ...
 type Event struct {
-	ID    int64     `json:"id"`
-	Title string    `json:"title"`
-	Date  time.Time `json:"date"`
-	Owner string    `json:"owner"`
+	ID        int64      `json:"id"`
+	Title     string     `json:"title"`
+	Date      *time.Time `json:"date"`
+	Owner     string     `json:"owner"`
+	CreatedAt *time.Time `db:"created_at"`
 }

@@ -22,7 +22,7 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) e
 	panic("implement me")
 }
 
-func (r *eventRepository) UpdateEvent(ctx context.Context, event *model.Event) error {
+func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) error {
 	//TODO implement me
 	panic("implement me")
 }

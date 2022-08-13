@@ -8,5 +8,5 @@ import (
 
 // CreateEvent ...
 func (s *Service) CreateEvent(ctx context.Context, event *model.Event) error {
-	return nil
+	return s.eventRepository.CreateEvent(ctx, event)
 }

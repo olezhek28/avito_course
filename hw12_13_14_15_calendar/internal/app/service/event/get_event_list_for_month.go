@@ -9,5 +9,5 @@ import (
 
 // GetEventListForMonth ...
 func (s *Service) GetEventListForMonth(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	return nil, nil
+	return s.eventRepository.GetEventListForMonth(ctx, date)
 }
