@@ -12,11 +12,6 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/utils"
 )
 
-const (
-	daysInWeek  = 7
-	daysInMonth = 30
-)
-
 type eventRepository struct {
 	db db.Client
 }
@@ -134,7 +129,7 @@ func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart tim
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.GtOrEq{"date": utils.BeginningOfDay(weekStart)}).
-		Where(sq.LtOrEq{"date": utils.EndOfDay(weekStart).AddDate(0, 0, daysInWeek)})
+		Where(sq.LtOrEq{"date": utils.EndOfDay(weekStart).AddDate(0, 0, utils.DaysInWeek)})
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -161,7 +156,7 @@ func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart t
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.GtOrEq{"date": utils.BeginningOfDay(monthStart)}).
-		Where(sq.LtOrEq{"date": utils.EndOfDay(monthStart).AddDate(0, 0, daysInMonth)})
+		Where(sq.LtOrEq{"date": utils.EndOfDay(monthStart).AddDate(0, 0, utils.DaysInMonth)})
 
 	query, v, err := builder.ToSql()
 	if err != nil {

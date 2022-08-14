@@ -2,6 +2,8 @@ package utils
 
 import (
 	"time"
+
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 )
 
 // DT common values
@@ -17,6 +19,13 @@ const (
 	dateTimeLayout = "2006-01-02T15:04:05"
 )
 
+// Date ...
+const (
+	DateLayout  = "2006-01-02"
+	DaysInWeek  = 7
+	DaysInMonth = 30
+)
+
 // BeginningOfDay returns the beginning of the day (00:00:00:00000) ...
 func BeginningOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
@@ -29,4 +38,14 @@ func EndOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 
 	return time.Date(y, m, d, endOfDayHour, endOfDayMinute, endOfDaySecond, int(time.Second-time.Nanosecond), t.Location())
+}
+
+// MapToSlice ...
+func MapToSlice(m map[int64]*model.Event) []*model.Event {
+	events := make([]*model.Event, 0, len(m))
+	for _, event := range m {
+		events = append(events, event)
+	}
+
+	return events
 }
