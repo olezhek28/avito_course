@@ -23,7 +23,7 @@ func NewEventRepository() repository.EventRepository {
 }
 
 // CreateEvent ...
-func (r *eventRepository) CreateEvent(_ context.Context, event *model.EventInfo) error {
+func (r *eventRepository) CreateEvent(_ context.Context, event *model.Event) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -32,12 +32,11 @@ func (r *eventRepository) CreateEvent(_ context.Context, event *model.EventInfo)
 
 	r.eventsByIDs[id] = &model.Event{
 		ID: id,
-		EventInfo: model.EventInfo{
-			Title:     event.Title,
-			Date:      event.Date,
-			Owner:     event.Owner,
-			CreatedAt: &now,
-		},
+
+		Title:     event.Title,
+		Date:      event.Date,
+		Owner:     event.Owner,
+		CreatedAt: &now,
 	}
 
 	beginDay := utils.BeginningOfDay(*event.Date)
@@ -61,7 +60,7 @@ func (r *eventRepository) DeleteEvent(_ context.Context, eventID int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	beginDay := utils.BeginningOfDay(*r.eventsByIDs[eventID].EventInfo.Date)
+	beginDay := utils.BeginningOfDay(*r.eventsByIDs[eventID].Date)
 	delete(r.eventsByDate[beginDay], eventID)
 	delete(r.eventsByIDs, eventID)
 

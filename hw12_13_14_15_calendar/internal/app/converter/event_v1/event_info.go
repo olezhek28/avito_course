@@ -6,10 +6,10 @@ import (
 )
 
 // ToEventInfo ...
-func ToEventInfo(event *desc.EventInfo) *model.EventInfo {
+func ToEventInfo(event *desc.EventInfo) *model.Event {
 	date := event.GetDate().AsTime()
 
-	return &model.EventInfo{
+	return &model.Event{
 		Title: event.GetTitle(),
 		Date:  &date,
 		Owner: event.GetOwner(),

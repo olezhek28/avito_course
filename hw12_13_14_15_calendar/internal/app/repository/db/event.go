@@ -23,7 +23,7 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 }
 
 // CreateEvent ...
-func (r *eventRepository) CreateEvent(ctx context.Context, event *model.EventInfo) error {
+func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) error {
 	builder := sq.Insert(table.Event).
 		PlaceholderFormat(sq.Dollar).
 		Columns("title", "date", "owner").
