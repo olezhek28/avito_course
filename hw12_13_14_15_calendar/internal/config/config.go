@@ -1,11 +1,11 @@
 package config
 
 import (
-	"os"
+	"encoding/json"
+	"io/ioutil"
 	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -14,39 +14,36 @@ const (
 
 // LoggerConf ...
 type LoggerConf struct {
-	Level string `yaml:"level"`
+	Level string `json:"level"`
 }
 
 // SourceConf ...
 type SourceConf struct {
-	SourceType string `yaml:"source_type"`
+	SourceType string `json:"source_type"`
 }
 
 // DB ...
 type DB struct {
-	dsn                string `yaml:"dsn"`
-	maxOpenConnections int32  `yaml:"max_open_connections"`
+	DSN                string `json:"dsn"`
+	MaxOpenConnections int32  `json:"max_open_connections"`
 }
 
 // Config ...
 type Config struct {
-	logger LoggerConf `yaml:"logger"`
-	source SourceConf `yaml:"source"`
-	db     DB         `yaml:"db"`
+	Logger LoggerConf `json:"logger"`
+	Source SourceConf `json:"source"`
+	DB     DB         `json:"db"`
 }
 
 // New ...
 func New(path string) (*Config, error) {
-	file, err := os.Open(path)
+	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
-	decoder := yaml.NewDecoder(file)
 
 	config := &Config{}
-	err = decoder.Decode(&config)
+	err = json.Unmarshal(file, &config)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +55,7 @@ func New(path string) (*Config, error) {
 func (c *Config) GetDbConfig() (*pgxpool.Config, error) {
 	password := "event-service-password"
 
-	dbDsn := strings.ReplaceAll(c.db.DSN(), dbPassEscSeq, password)
+	dbDsn := strings.ReplaceAll(c.DB.DSN, dbPassEscSeq, password)
 
 	poolConfig, err := pgxpool.ParseConfig(dbDsn)
 	if err != nil {
@@ -66,7 +63,7 @@ func (c *Config) GetDbConfig() (*pgxpool.Config, error) {
 	}
 	poolConfig.ConnConfig.BuildStatementCache = nil
 	poolConfig.ConnConfig.PreferSimpleProtocol = true
-	poolConfig.MaxConns = c.db.MaxOpenConnections()
+	poolConfig.MaxConns = c.DB.MaxOpenConnections
 
 	return poolConfig, nil
 }

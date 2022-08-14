@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	httpPort = "7000"
-	grpcPort = "7002"
+	httpPort = ":7000"
+	grpcPort = ":7002"
 )
 
 type App struct {
