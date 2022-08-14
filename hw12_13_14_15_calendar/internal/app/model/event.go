@@ -18,4 +18,5 @@ type Event struct {
 	Date      *time.Time `db:"date"`
 	Owner     string     `db:"owner"`
 	CreatedAt *time.Time `db:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at"`
 }

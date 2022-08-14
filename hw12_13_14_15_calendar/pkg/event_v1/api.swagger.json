@@ -254,6 +254,11 @@
           "type": "string",
           "format": "date-time",
           "title": "Дата создания события"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Дата последнего обновления события"
         }
       }
     },

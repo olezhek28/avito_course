@@ -48,6 +48,7 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) e
 func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) error {
 	builder := sq.Update(table.Event).
 		PlaceholderFormat(sq.Dollar).
+		Set("updated_at", time.Now()).
 		Where(sq.Eq{"id": eventID})
 
 	if updateEvent.Title.Valid {
@@ -98,7 +99,7 @@ func (r *eventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 
 // GetEventListForDay ...
 func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at").
+	builder := sq.Select("id, title, date, owner, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.GtOrEq{"date": utils.BeginningOfDay(date)}).
@@ -125,7 +126,7 @@ func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time
 
 // GetEventListForWeek ...
 func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at").
+	builder := sq.Select("id, title, date, owner, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.GtOrEq{"date": utils.BeginningOfDay(weekStart)}).
@@ -152,7 +153,7 @@ func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart tim
 
 // GetEventListForMonth ...
 func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at").
+	builder := sq.Select("id, title, date, owner, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.GtOrEq{"date": utils.BeginningOfDay(monthStart)}).

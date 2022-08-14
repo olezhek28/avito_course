@@ -6,7 +6,8 @@ create table event
     title      text      not null,
     date       timestamp not null,
     owner      text      not null,
-    created_at timestamp not null default now()
+    created_at timestamp not null default now(),
+    updated_at   timestamp
 );
 
 -- +goose Down

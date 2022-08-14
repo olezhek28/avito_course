@@ -74,6 +74,8 @@ message Event {
   EventInfo event_info = 2;
   // Дата создания события
   google.protobuf.Timestamp created_at = 3;
+  // Дата последнего обновления события
+  google.protobuf.Timestamp updated_at = 4;
 }
 
 message CreateEventRequest {
