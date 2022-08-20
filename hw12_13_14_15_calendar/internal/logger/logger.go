@@ -1,20 +1,31 @@
 package logger
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-type Logger struct { // TODO
+const dateLayout = "2006-01-02"
+
+type Logger struct {
 }
 
-func New(level string) *Logger {
+func New() *Logger {
 	return &Logger{}
 }
 
-func (l Logger) Info(msg string) {
-	fmt.Println(msg)
+func (l *Logger) Info(msg string) {
+	fmt.Printf("[INFO] %s: %s\n", time.Now().Format(dateLayout), msg)
 }
 
-func (l Logger) Error(msg string) {
-	// TODO
+func (l *Logger) Warn(msg string) {
+	fmt.Printf("[WARNING] %s: %s\n", time.Now().Format(dateLayout), msg)
 }
 
-// TODO
+func (l *Logger) Debug(msg string) {
+	fmt.Printf("[DEBUG] %s: %s\n", time.Now().Format(dateLayout), msg)
+}
+
+func (l *Logger) Error(msg string) {
+	fmt.Printf("[ERROR] %s: %s\n", time.Now().Format(dateLayout), msg)
+}

@@ -12,6 +12,7 @@ import (
 // DeleteEvent ...
 func (s *Service) DeleteEvent(ctx context.Context, eventID sql.NullInt64) error {
 	if !eventID.Valid {
+		s.logger.Error(err.ErrInvalidEventID)
 		return status.Error(codes.InvalidArgument, err.ErrInvalidEventID)
 	}
 

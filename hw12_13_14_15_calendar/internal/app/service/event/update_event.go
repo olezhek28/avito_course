@@ -13,9 +13,11 @@ import (
 // UpdateEvent ...
 func (s *Service) UpdateEvent(ctx context.Context, eventID sql.NullInt64, updateEventInfo *model.UpdateEventInfo) error {
 	if updateEventInfo == nil {
+		s.logger.Error(err.ErrInvalidArguments)
 		return status.Error(codes.InvalidArgument, err.ErrInvalidArguments)
 	}
 	if !eventID.Valid {
+		s.logger.Error(err.ErrInvalidEventID)
 		return status.Error(codes.InvalidArgument, err.ErrInvalidEventID)
 	}
 

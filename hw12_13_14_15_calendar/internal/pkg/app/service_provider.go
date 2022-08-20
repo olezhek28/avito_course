@@ -9,6 +9,7 @@ import (
 	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
 )
 
@@ -23,6 +24,7 @@ type serviceProvider struct {
 	db             db.Client
 	configPath     string
 	config         *config.Config
+	logger         *logger.Logger
 	dataSourceType sourceType
 
 	// repositories
@@ -70,6 +72,14 @@ func (s *serviceProvider) GetConfig() *config.Config {
 	return s.config
 }
 
+func (s *serviceProvider) GetLogger() *logger.Logger {
+	if s.logger == nil {
+		s.logger = logger.New()
+	}
+
+	return s.logger
+}
+
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
@@ -87,6 +97,8 @@ func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.Eve
 func (s *serviceProvider) GetEventService(ctx context.Context) *event.Service {
 	if s.eventService == nil {
 		s.eventService = event.NewService(
+			s.GetLogger(),
+
 			s.GetEventRepository(ctx),
 		)
 	}
