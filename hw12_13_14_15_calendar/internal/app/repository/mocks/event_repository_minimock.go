@@ -19,8 +19,8 @@ import (
 type EventRepositoryMock struct {
 	t minimock.Tester
 
-	funcCreateEvent          func(ctx context.Context, event *model.EventInfo) (err error)
-	inspectFuncCreateEvent   func(ctx context.Context, event *model.EventInfo)
+	funcCreateEvent          func(ctx context.Context, eventInfo *model.EventInfo) (err error)
+	inspectFuncCreateEvent   func(ctx context.Context, eventInfo *model.EventInfo)
 	afterCreateEventCounter  uint64
 	beforeCreateEventCounter uint64
 	CreateEventMock          mEventRepositoryMockCreateEvent
@@ -49,8 +49,8 @@ type EventRepositoryMock struct {
 	beforeGetEventListForWeekCounter uint64
 	GetEventListForWeekMock          mEventRepositoryMockGetEventListForWeek
 
-	funcUpdateEvent          func(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) (err error)
-	inspectFuncUpdateEvent   func(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent)
+	funcUpdateEvent          func(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) (err error)
+	inspectFuncUpdateEvent   func(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo)
 	afterUpdateEventCounter  uint64
 	beforeUpdateEventCounter uint64
 	UpdateEventMock          mEventRepositoryMockUpdateEvent
@@ -103,8 +103,8 @@ type EventRepositoryMockCreateEventExpectation struct {
 
 // EventRepositoryMockCreateEventParams contains parameters of the EventRepository.CreateEvent
 type EventRepositoryMockCreateEventParams struct {
-	ctx   context.Context
-	event *model.EventInfo
+	ctx       context.Context
+	eventInfo *model.EventInfo
 }
 
 // EventRepositoryMockCreateEventResults contains results of the EventRepository.CreateEvent
@@ -113,7 +113,7 @@ type EventRepositoryMockCreateEventResults struct {
 }
 
 // Expect sets up expected params for EventRepository.CreateEvent
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) Expect(ctx context.Context, event *model.EventInfo) *mEventRepositoryMockCreateEvent {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) Expect(ctx context.Context, eventInfo *model.EventInfo) *mEventRepositoryMockCreateEvent {
 	if mmCreateEvent.mock.funcCreateEvent != nil {
 		mmCreateEvent.mock.t.Fatalf("EventRepositoryMock.CreateEvent mock is already set by Set")
 	}
@@ -122,7 +122,7 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Expect(ctx context.Context
 		mmCreateEvent.defaultExpectation = &EventRepositoryMockCreateEventExpectation{}
 	}
 
-	mmCreateEvent.defaultExpectation.params = &EventRepositoryMockCreateEventParams{ctx, event}
+	mmCreateEvent.defaultExpectation.params = &EventRepositoryMockCreateEventParams{ctx, eventInfo}
 	for _, e := range mmCreateEvent.expectations {
 		if minimock.Equal(e.params, mmCreateEvent.defaultExpectation.params) {
 			mmCreateEvent.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreateEvent.defaultExpectation.params)
@@ -133,7 +133,7 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Expect(ctx context.Context
 }
 
 // Inspect accepts an inspector function that has same arguments as the EventRepository.CreateEvent
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) Inspect(f func(ctx context.Context, event *model.EventInfo)) *mEventRepositoryMockCreateEvent {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) Inspect(f func(ctx context.Context, eventInfo *model.EventInfo)) *mEventRepositoryMockCreateEvent {
 	if mmCreateEvent.mock.inspectFuncCreateEvent != nil {
 		mmCreateEvent.mock.t.Fatalf("Inspect function is already set for EventRepositoryMock.CreateEvent")
 	}
@@ -157,7 +157,7 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Return(err error) *EventRe
 }
 
 //Set uses given function f to mock the EventRepository.CreateEvent method
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) Set(f func(ctx context.Context, event *model.EventInfo) (err error)) *EventRepositoryMock {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) Set(f func(ctx context.Context, eventInfo *model.EventInfo) (err error)) *EventRepositoryMock {
 	if mmCreateEvent.defaultExpectation != nil {
 		mmCreateEvent.mock.t.Fatalf("Default expectation is already set for the EventRepository.CreateEvent method")
 	}
@@ -172,14 +172,14 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Set(f func(ctx context.Con
 
 // When sets expectation for the EventRepository.CreateEvent which will trigger the result defined by the following
 // Then helper
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) When(ctx context.Context, event *model.EventInfo) *EventRepositoryMockCreateEventExpectation {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) When(ctx context.Context, eventInfo *model.EventInfo) *EventRepositoryMockCreateEventExpectation {
 	if mmCreateEvent.mock.funcCreateEvent != nil {
 		mmCreateEvent.mock.t.Fatalf("EventRepositoryMock.CreateEvent mock is already set by Set")
 	}
 
 	expectation := &EventRepositoryMockCreateEventExpectation{
 		mock:   mmCreateEvent.mock,
-		params: &EventRepositoryMockCreateEventParams{ctx, event},
+		params: &EventRepositoryMockCreateEventParams{ctx, eventInfo},
 	}
 	mmCreateEvent.expectations = append(mmCreateEvent.expectations, expectation)
 	return expectation
@@ -192,15 +192,15 @@ func (e *EventRepositoryMockCreateEventExpectation) Then(err error) *EventReposi
 }
 
 // CreateEvent implements repository.EventRepository
-func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, event *model.EventInfo) (err error) {
+func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (err error) {
 	mm_atomic.AddUint64(&mmCreateEvent.beforeCreateEventCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreateEvent.afterCreateEventCounter, 1)
 
 	if mmCreateEvent.inspectFuncCreateEvent != nil {
-		mmCreateEvent.inspectFuncCreateEvent(ctx, event)
+		mmCreateEvent.inspectFuncCreateEvent(ctx, eventInfo)
 	}
 
-	mm_params := &EventRepositoryMockCreateEventParams{ctx, event}
+	mm_params := &EventRepositoryMockCreateEventParams{ctx, eventInfo}
 
 	// Record call args
 	mmCreateEvent.CreateEventMock.mutex.Lock()
@@ -217,7 +217,7 @@ func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, event
 	if mmCreateEvent.CreateEventMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCreateEvent.CreateEventMock.defaultExpectation.Counter, 1)
 		mm_want := mmCreateEvent.CreateEventMock.defaultExpectation.params
-		mm_got := EventRepositoryMockCreateEventParams{ctx, event}
+		mm_got := EventRepositoryMockCreateEventParams{ctx, eventInfo}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCreateEvent.t.Errorf("EventRepositoryMock.CreateEvent got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -229,9 +229,9 @@ func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, event
 		return (*mm_results).err
 	}
 	if mmCreateEvent.funcCreateEvent != nil {
-		return mmCreateEvent.funcCreateEvent(ctx, event)
+		return mmCreateEvent.funcCreateEvent(ctx, eventInfo)
 	}
-	mmCreateEvent.t.Fatalf("Unexpected call to EventRepositoryMock.CreateEvent. %v %v", ctx, event)
+	mmCreateEvent.t.Fatalf("Unexpected call to EventRepositoryMock.CreateEvent. %v %v", ctx, eventInfo)
 	return
 }
 
@@ -1186,9 +1186,9 @@ type EventRepositoryMockUpdateEventExpectation struct {
 
 // EventRepositoryMockUpdateEventParams contains parameters of the EventRepository.UpdateEvent
 type EventRepositoryMockUpdateEventParams struct {
-	ctx         context.Context
-	eventID     int64
-	updateEvent *model.UpdateEvent
+	ctx             context.Context
+	eventID         int64
+	updateEventInfo *model.UpdateEventInfo
 }
 
 // EventRepositoryMockUpdateEventResults contains results of the EventRepository.UpdateEvent
@@ -1197,7 +1197,7 @@ type EventRepositoryMockUpdateEventResults struct {
 }
 
 // Expect sets up expected params for EventRepository.UpdateEvent
-func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Expect(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) *mEventRepositoryMockUpdateEvent {
+func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Expect(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) *mEventRepositoryMockUpdateEvent {
 	if mmUpdateEvent.mock.funcUpdateEvent != nil {
 		mmUpdateEvent.mock.t.Fatalf("EventRepositoryMock.UpdateEvent mock is already set by Set")
 	}
@@ -1206,7 +1206,7 @@ func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Expect(ctx context.Context
 		mmUpdateEvent.defaultExpectation = &EventRepositoryMockUpdateEventExpectation{}
 	}
 
-	mmUpdateEvent.defaultExpectation.params = &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEvent}
+	mmUpdateEvent.defaultExpectation.params = &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEventInfo}
 	for _, e := range mmUpdateEvent.expectations {
 		if minimock.Equal(e.params, mmUpdateEvent.defaultExpectation.params) {
 			mmUpdateEvent.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmUpdateEvent.defaultExpectation.params)
@@ -1217,7 +1217,7 @@ func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Expect(ctx context.Context
 }
 
 // Inspect accepts an inspector function that has same arguments as the EventRepository.UpdateEvent
-func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Inspect(f func(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent)) *mEventRepositoryMockUpdateEvent {
+func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Inspect(f func(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo)) *mEventRepositoryMockUpdateEvent {
 	if mmUpdateEvent.mock.inspectFuncUpdateEvent != nil {
 		mmUpdateEvent.mock.t.Fatalf("Inspect function is already set for EventRepositoryMock.UpdateEvent")
 	}
@@ -1241,7 +1241,7 @@ func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Return(err error) *EventRe
 }
 
 //Set uses given function f to mock the EventRepository.UpdateEvent method
-func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Set(f func(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) (err error)) *EventRepositoryMock {
+func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Set(f func(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) (err error)) *EventRepositoryMock {
 	if mmUpdateEvent.defaultExpectation != nil {
 		mmUpdateEvent.mock.t.Fatalf("Default expectation is already set for the EventRepository.UpdateEvent method")
 	}
@@ -1256,14 +1256,14 @@ func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) Set(f func(ctx context.Con
 
 // When sets expectation for the EventRepository.UpdateEvent which will trigger the result defined by the following
 // Then helper
-func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) When(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) *EventRepositoryMockUpdateEventExpectation {
+func (mmUpdateEvent *mEventRepositoryMockUpdateEvent) When(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) *EventRepositoryMockUpdateEventExpectation {
 	if mmUpdateEvent.mock.funcUpdateEvent != nil {
 		mmUpdateEvent.mock.t.Fatalf("EventRepositoryMock.UpdateEvent mock is already set by Set")
 	}
 
 	expectation := &EventRepositoryMockUpdateEventExpectation{
 		mock:   mmUpdateEvent.mock,
-		params: &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEvent},
+		params: &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEventInfo},
 	}
 	mmUpdateEvent.expectations = append(mmUpdateEvent.expectations, expectation)
 	return expectation
@@ -1276,15 +1276,15 @@ func (e *EventRepositoryMockUpdateEventExpectation) Then(err error) *EventReposi
 }
 
 // UpdateEvent implements repository.EventRepository
-func (mmUpdateEvent *EventRepositoryMock) UpdateEvent(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) (err error) {
+func (mmUpdateEvent *EventRepositoryMock) UpdateEvent(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) (err error) {
 	mm_atomic.AddUint64(&mmUpdateEvent.beforeUpdateEventCounter, 1)
 	defer mm_atomic.AddUint64(&mmUpdateEvent.afterUpdateEventCounter, 1)
 
 	if mmUpdateEvent.inspectFuncUpdateEvent != nil {
-		mmUpdateEvent.inspectFuncUpdateEvent(ctx, eventID, updateEvent)
+		mmUpdateEvent.inspectFuncUpdateEvent(ctx, eventID, updateEventInfo)
 	}
 
-	mm_params := &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEvent}
+	mm_params := &EventRepositoryMockUpdateEventParams{ctx, eventID, updateEventInfo}
 
 	// Record call args
 	mmUpdateEvent.UpdateEventMock.mutex.Lock()
@@ -1301,7 +1301,7 @@ func (mmUpdateEvent *EventRepositoryMock) UpdateEvent(ctx context.Context, event
 	if mmUpdateEvent.UpdateEventMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmUpdateEvent.UpdateEventMock.defaultExpectation.Counter, 1)
 		mm_want := mmUpdateEvent.UpdateEventMock.defaultExpectation.params
-		mm_got := EventRepositoryMockUpdateEventParams{ctx, eventID, updateEvent}
+		mm_got := EventRepositoryMockUpdateEventParams{ctx, eventID, updateEventInfo}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmUpdateEvent.t.Errorf("EventRepositoryMock.UpdateEvent got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1313,9 +1313,9 @@ func (mmUpdateEvent *EventRepositoryMock) UpdateEvent(ctx context.Context, event
 		return (*mm_results).err
 	}
 	if mmUpdateEvent.funcUpdateEvent != nil {
-		return mmUpdateEvent.funcUpdateEvent(ctx, eventID, updateEvent)
+		return mmUpdateEvent.funcUpdateEvent(ctx, eventID, updateEventInfo)
 	}
-	mmUpdateEvent.t.Fatalf("Unexpected call to EventRepositoryMock.UpdateEvent. %v %v %v", ctx, eventID, updateEvent)
+	mmUpdateEvent.t.Fatalf("Unexpected call to EventRepositoryMock.UpdateEvent. %v %v %v", ctx, eventID, updateEventInfo)
 	return
 }
 

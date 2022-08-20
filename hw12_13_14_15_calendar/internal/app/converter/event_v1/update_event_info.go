@@ -7,13 +7,13 @@ import (
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 )
 
-// ToUpdateEvent ...
-func ToUpdateEvent(updateEvent *desc.UpdateEventRequest_UpdateEventInfo) *model.UpdateEvent {
+// ToUpdateEventInfo ...
+func ToUpdateEventInfo(updateEvent *desc.UpdateEventRequest_UpdateEventInfo) *model.UpdateEventInfo {
 	if updateEvent == nil {
 		return nil
 	}
 
-	return &model.UpdateEvent{
+	return &model.UpdateEventInfo{
 		Title: sql.NullString{
 			String: updateEvent.GetTitle().GetValue(),
 			Valid:  updateEvent.GetTitle() != nil,

@@ -19,8 +19,8 @@ func ToDescEvents(events []*model.Event) []*desc.Event {
 // ToDescEvent ...
 func ToDescEvent(event *model.Event) *desc.Event {
 	var date *timestamppb.Timestamp
-	if event.Date != nil {
-		date = timestamppb.New(*event.Date)
+	if event.EventInfo.Date != nil {
+		date = timestamppb.New(*event.EventInfo.Date)
 	}
 
 	var createdAt *timestamppb.Timestamp
@@ -36,9 +36,9 @@ func ToDescEvent(event *model.Event) *desc.Event {
 	return &desc.Event{
 		Id: event.ID,
 		EventInfo: &desc.EventInfo{
-			Title: event.Title,
+			Title: event.EventInfo.Title,
 			Date:  date,
-			Owner: event.Owner,
+			Owner: event.EventInfo.Owner,
 		},
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,

@@ -16,7 +16,7 @@ func (i *Implementation) UpdateEvent(ctx context.Context, req *desc.UpdateEventR
 			Int64: req.GetId().GetValue(),
 			Valid: req.GetId() != nil,
 		},
-		converter.ToUpdateEvent(req.GetUpdateEventInfo()),
+		converter.ToUpdateEventInfo(req.GetUpdateEventInfo()),
 	)
 	if err != nil {
 		return nil, err

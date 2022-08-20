@@ -82,7 +82,7 @@ func (a *App) initServiceProvider(_ context.Context) error {
 
 func (a *App) initServer(ctx context.Context) error {
 	a.eventImpl = eventV1.NewEventV1(
-		a.serviceProvider.GetNoteService(ctx),
+		a.serviceProvider.GetEventService(ctx),
 	)
 
 	return nil

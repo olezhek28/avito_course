@@ -83,8 +83,8 @@ func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.Eve
 	return s.eventRepository
 }
 
-// GetNoteService ...
-func (s *serviceProvider) GetNoteService(ctx context.Context) *event.Service {
+// GetEventService ...
+func (s *serviceProvider) GetEventService(ctx context.Context) *event.Service {
 	if s.eventService == nil {
 		s.eventService = event.NewService(
 			s.GetEventRepository(ctx),

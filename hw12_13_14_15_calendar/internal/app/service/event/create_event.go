@@ -7,6 +7,6 @@ import (
 )
 
 // CreateEvent ...
-func (s *Service) CreateEvent(ctx context.Context, event *model.Event) error {
-	return s.eventRepository.CreateEvent(ctx, event)
+func (s *Service) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
+	return s.eventRepository.CreateEvent(ctx, eventInfo)
 }

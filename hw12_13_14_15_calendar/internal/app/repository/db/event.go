@@ -23,11 +23,11 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 }
 
 // CreateEvent ...
-func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) error {
+func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
 	builder := sq.Insert(table.Event).
 		PlaceholderFormat(sq.Dollar).
 		Columns("title", "date", "owner").
-		Values(event.Title, event.Date, event.Owner)
+		Values(eventInfo.Title, eventInfo.Date, eventInfo.Owner)
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -45,20 +45,20 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *model.Event) e
 }
 
 // UpdateEvent ...
-func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, updateEvent *model.UpdateEvent) error {
+func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) error {
 	builder := sq.Update(table.Event).
 		PlaceholderFormat(sq.Dollar).
 		Set("updated_at", time.Now()).
 		Where(sq.Eq{"id": eventID})
 
-	if updateEvent.Title.Valid {
-		builder = builder.Set("title", updateEvent.Title.String)
+	if updateEventInfo.Title.Valid {
+		builder = builder.Set("title", updateEventInfo.Title.String)
 	}
-	if updateEvent.Date.Valid {
-		builder = builder.Set("date", updateEvent.Date.Time)
+	if updateEventInfo.Date.Valid {
+		builder = builder.Set("date", updateEventInfo.Date.Time)
 	}
-	if updateEvent.Owner.Valid {
-		builder = builder.Set("owner", updateEvent.Owner.String)
+	if updateEventInfo.Owner.Valid {
+		builder = builder.Set("owner", updateEventInfo.Owner.String)
 	}
 
 	query, v, err := builder.ToSql()

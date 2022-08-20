@@ -20,3 +20,11 @@ func NewEventV1(eventService *event.Service) *Implementation {
 		eventService,
 	}
 }
+
+func newMockEventV1(i Implementation) *Implementation {
+	return &Implementation{
+		desc.UnimplementedEventServiceV1Server{},
+
+		i.eventService,
+	}
+}
