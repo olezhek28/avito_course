@@ -31,16 +31,12 @@ func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventI
 	now := time.Now()
 
 	r.eventsByIDs[id] = &model.Event{
-		ID: id,
-		EventInfo: &model.EventInfo{
-			Title: eventInfo.Title,
-			Date:  eventInfo.Date,
-			Owner: eventInfo.Owner,
-		},
+		ID:        id,
+		EventInfo: eventInfo,
 		CreatedAt: &now,
 	}
 
-	beginDay := utils.BeginningOfDay(*eventInfo.Date)
+	beginDay := utils.BeginningOfDay(*eventInfo.StartDate)
 	if _, found := r.eventsByDate[beginDay]; !found {
 		r.eventsByDate[beginDay] = make(map[int64]*model.Event)
 	}
@@ -61,7 +57,7 @@ func (r *eventRepository) DeleteEvent(_ context.Context, eventID int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	beginDay := utils.BeginningOfDay(*r.eventsByIDs[eventID].EventInfo.Date)
+	beginDay := utils.BeginningOfDay(*r.eventsByIDs[eventID].EventInfo.StartDate)
 	delete(r.eventsByDate[beginDay], eventID)
 	delete(r.eventsByIDs, eventID)
 

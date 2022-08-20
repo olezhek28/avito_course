@@ -2,12 +2,15 @@
 -- SQL in this section is executed when the migration is applied.
 create table event
 (
-    id         bigserial primary key,
-    title      text      not null,
-    date       timestamp not null,
-    owner      text      not null,
-    created_at timestamp not null default now(),
-    updated_at   timestamp
+    id                        bigserial primary key,
+    title                     text      not null,
+    start_date                timestamp not null,
+    end_date                  timestamp,
+    notification_interval_min bigint,
+    description               text,
+    owner_id                  bigint    not null,
+    created_at                timestamp not null default now(),
+    updated_at                timestamp
 );
 
 -- +goose Down

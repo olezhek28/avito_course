@@ -60,11 +60,17 @@ service EventServiceV1 {
 // Информация о событии
 message EventInfo {
   // Название события
-  string title = 1;
-  // Дата события
-  google.protobuf.Timestamp Date = 2;
-  // Владелец события
-  string owner = 3;
+  string title = 1 [(validate.rules).string.min_len = 1];
+  // Дата и время начала события
+  google.protobuf.Timestamp start_date = 2 [(validate.rules).timestamp.required = true];
+  // Дата и время окончания события
+  google.protobuf.Timestamp end_date = 3;
+  // Интервал времени для уведомления о событии
+  google.protobuf.Int64Value notification_interval_min = 4;
+  // Описание события
+  google.protobuf.StringValue description = 5;
+  // Идентификатор владельца события
+  int64 owner_id = 6 [(validate.rules).int64.gt = 0];
 }
 
 message Event {
@@ -87,10 +93,16 @@ message UpdateEventRequest {
   message UpdateEventInfo {
     // Название события
     google.protobuf.StringValue title = 1;
-    // Дата события
-    google.protobuf.Timestamp Date = 2;
-    // Владелец события
-    google.protobuf.StringValue owner = 3;
+    // Дата и время начала события
+    google.protobuf.Timestamp start_date = 2;
+    // Дата и время окончания события
+    google.protobuf.Timestamp end_date = 3;
+    // Интервал времени для уведомления о событии
+    google.protobuf.Int64Value notification_interval_min = 4;
+    // Описание события
+    google.protobuf.StringValue description = 5;
+    // Идентификатор владельца события
+    google.protobuf.Int64Value owner_id = 6;
   }
 
   // Идентификатор заметки

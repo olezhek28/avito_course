@@ -1,12 +1,18 @@
 package model
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // EventInfo ...
 type EventInfo struct {
-	Title string     `db:"title"`
-	Date  *time.Time `db:"date"`
-	Owner string     `db:"owner"`
+	Title                   string         `db:"title"`
+	StartDate               *time.Time     `db:"start_date"`
+	EndDate                 *time.Time     `db:"end_date"`
+	NotificationIntervalMin sql.NullInt64  `db:"notification_interval_min"`
+	Description             sql.NullString `db:"description"`
+	OwnerID                 int64          `db:"owner_id"`
 }
 
 // Event ...

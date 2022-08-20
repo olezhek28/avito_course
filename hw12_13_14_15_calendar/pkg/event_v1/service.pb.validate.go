@@ -40,19 +40,56 @@ func (m *EventInfo) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Title
+	if utf8.RuneCountInString(m.GetTitle()) < 1 {
+		return EventInfoValidationError{
+			field:  "Title",
+			reason: "value length must be at least 1 runes",
+		}
+	}
 
-	if v, ok := interface{}(m.GetDate()).(interface{ Validate() error }); ok {
+	if m.GetStartDate() == nil {
+		return EventInfoValidationError{
+			field:  "StartDate",
+			reason: "value is required",
+		}
+	}
+
+	if v, ok := interface{}(m.GetEndDate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return EventInfoValidationError{
-				field:  "Date",
+				field:  "EndDate",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	// no validation rules for Owner
+	if v, ok := interface{}(m.GetNotificationIntervalMin()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EventInfoValidationError{
+				field:  "NotificationIntervalMin",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetDescription()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EventInfoValidationError{
+				field:  "Description",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if m.GetOwnerId() <= 0 {
+		return EventInfoValidationError{
+			field:  "OwnerId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }
@@ -938,20 +975,50 @@ func (m *UpdateEventRequest_UpdateEventInfo) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetDate()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetStartDate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateEventRequest_UpdateEventInfoValidationError{
-				field:  "Date",
+				field:  "StartDate",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetEndDate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateEventRequest_UpdateEventInfoValidationError{
-				field:  "Owner",
+				field:  "EndDate",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetNotificationIntervalMin()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "NotificationIntervalMin",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetDescription()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "Description",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetOwnerId()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateEventRequest_UpdateEventInfoValidationError{
+				field:  "OwnerId",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

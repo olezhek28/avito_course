@@ -26,8 +26,8 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
 	builder := sq.Insert(table.Event).
 		PlaceholderFormat(sq.Dollar).
-		Columns("title", "date", "owner").
-		Values(eventInfo.Title, eventInfo.Date, eventInfo.Owner)
+		Columns("title", "start_date", "end_date", "notification_interval_min", "description", "owner_id").
+		Values(eventInfo.Title, eventInfo.StartDate, eventInfo.EndDate, eventInfo.NotificationIntervalMin, eventInfo.Description, eventInfo.OwnerID)
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -54,11 +54,20 @@ func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, update
 	if updateEventInfo.Title.Valid {
 		builder = builder.Set("title", updateEventInfo.Title.String)
 	}
-	if updateEventInfo.Date.Valid {
-		builder = builder.Set("date", updateEventInfo.Date.Time)
+	if updateEventInfo.StartDate.Valid {
+		builder = builder.Set("start_date", updateEventInfo.StartDate.Time)
 	}
-	if updateEventInfo.Owner.Valid {
-		builder = builder.Set("owner", updateEventInfo.Owner.String)
+	if updateEventInfo.EndDate.Valid {
+		builder = builder.Set("end_date", updateEventInfo.EndDate.Time)
+	}
+	if updateEventInfo.NotificationIntervalMin.Valid {
+		builder = builder.Set("notification_interval_min", updateEventInfo.NotificationIntervalMin.Int64)
+	}
+	if updateEventInfo.Description.Valid {
+		builder = builder.Set("description", updateEventInfo.Description.String)
+	}
+	if updateEventInfo.OwnerID.Valid {
+		builder = builder.Set("owner_id", updateEventInfo.OwnerID.Int64)
 	}
 
 	query, v, err := builder.ToSql()
@@ -99,11 +108,11 @@ func (r *eventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 
 // GetEventListForDay ...
 func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at, updated_at").
+	builder := sq.Select("id, title, start_date, end_date, notification_interval_min, description, owner_id, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
-		Where(sq.GtOrEq{"date": utils.BeginningOfDay(date)}).
-		Where(sq.LtOrEq{"date": utils.EndOfDay(date)})
+		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(date)}).
+		Where(sq.LtOrEq{"start_date": utils.EndOfDay(date)})
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -126,11 +135,11 @@ func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time
 
 // GetEventListForWeek ...
 func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at, updated_at").
+	builder := sq.Select("id, title, start_date, end_date, notification_interval_min, description, owner_id, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
-		Where(sq.GtOrEq{"date": utils.BeginningOfDay(weekStart)}).
-		Where(sq.LtOrEq{"date": utils.EndOfDay(weekStart).AddDate(0, 0, utils.DaysInWeek)})
+		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(weekStart)}).
+		Where(sq.LtOrEq{"start_date": utils.EndOfDay(weekStart).AddDate(0, 0, utils.DaysInWeek)})
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -153,11 +162,11 @@ func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart tim
 
 // GetEventListForMonth ...
 func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, date, owner, created_at, updated_at").
+	builder := sq.Select("id, title, start_date, end_date, notification_interval_min, description, owner_id, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
-		Where(sq.GtOrEq{"date": utils.BeginningOfDay(monthStart)}).
-		Where(sq.LtOrEq{"date": utils.EndOfDay(monthStart).AddDate(0, 0, utils.DaysInMonth)})
+		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(monthStart)}).
+		Where(sq.LtOrEq{"start_date": utils.EndOfDay(monthStart).AddDate(0, 0, utils.DaysInMonth)})
 
 	query, v, err := builder.ToSql()
 	if err != nil {

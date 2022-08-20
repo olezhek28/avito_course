@@ -8,23 +8,35 @@ import (
 )
 
 // ToUpdateEventInfo ...
-func ToUpdateEventInfo(updateEvent *desc.UpdateEventRequest_UpdateEventInfo) *model.UpdateEventInfo {
-	if updateEvent == nil {
+func ToUpdateEventInfo(updateEventInfo *desc.UpdateEventRequest_UpdateEventInfo) *model.UpdateEventInfo {
+	if updateEventInfo == nil {
 		return nil
 	}
 
 	return &model.UpdateEventInfo{
 		Title: sql.NullString{
-			String: updateEvent.GetTitle().GetValue(),
-			Valid:  updateEvent.GetTitle() != nil,
+			String: updateEventInfo.GetTitle().GetValue(),
+			Valid:  updateEventInfo.GetTitle() != nil,
 		},
-		Date: sql.NullTime{
-			Time:  updateEvent.GetDate().AsTime(),
-			Valid: updateEvent.GetDate() != nil,
+		StartDate: sql.NullTime{
+			Time:  updateEventInfo.GetStartDate().AsTime(),
+			Valid: updateEventInfo.GetStartDate() != nil,
 		},
-		Owner: sql.NullString{
-			String: updateEvent.GetOwner().GetValue(),
-			Valid:  updateEvent.GetOwner() != nil,
+		EndDate: sql.NullTime{
+			Time:  updateEventInfo.GetEndDate().AsTime(),
+			Valid: updateEventInfo.GetEndDate() != nil,
+		},
+		NotificationIntervalMin: sql.NullInt64{
+			Int64: updateEventInfo.GetNotificationIntervalMin().GetValue(),
+			Valid: updateEventInfo.GetNotificationIntervalMin() != nil,
+		},
+		Description: sql.NullString{
+			String: updateEventInfo.GetDescription().GetValue(),
+			Valid:  updateEventInfo.GetDescription() != nil,
+		},
+		OwnerID: sql.NullInt64{
+			Int64: updateEventInfo.GetOwnerId().GetValue(),
+			Valid: updateEventInfo.GetOwnerId() != nil,
 		},
 	}
 }

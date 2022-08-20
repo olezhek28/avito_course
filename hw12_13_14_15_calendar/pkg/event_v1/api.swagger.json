@@ -218,14 +218,29 @@
           "type": "string",
           "title": "Название события"
         },
-        "Date": {
+        "start_date": {
           "type": "string",
           "format": "date-time",
-          "title": "Дата события"
+          "title": "Дата и время начала события"
         },
-        "owner": {
+        "end_date": {
           "type": "string",
-          "title": "Владелец события"
+          "format": "date-time",
+          "title": "Дата и время окончания события"
+        },
+        "notification_interval_min": {
+          "type": "string",
+          "format": "int64",
+          "title": "Интервал времени для уведомления о событии"
+        },
+        "description": {
+          "type": "string",
+          "title": "Описание события"
+        },
+        "owner_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор владельца события"
         }
       },
       "title": "Информация о событии для обновления"
@@ -269,14 +284,29 @@
           "type": "string",
           "title": "Название события"
         },
-        "Date": {
+        "start_date": {
           "type": "string",
           "format": "date-time",
-          "title": "Дата события"
+          "title": "Дата и время начала события"
         },
-        "owner": {
+        "end_date": {
           "type": "string",
-          "title": "Владелец события"
+          "format": "date-time",
+          "title": "Дата и время окончания события"
+        },
+        "notification_interval_min": {
+          "type": "string",
+          "format": "int64",
+          "title": "Интервал времени для уведомления о событии"
+        },
+        "description": {
+          "type": "string",
+          "title": "Описание события"
+        },
+        "owner_id": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор владельца события"
         }
       },
       "title": "Информация о событии"
