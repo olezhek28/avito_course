@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"sync"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcValidator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	eventV1 "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/api/event_v1"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/interceptors"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 	"google.golang.org/grpc"
 )
@@ -90,8 +92,18 @@ func (a *App) initServer(ctx context.Context) error {
 
 func (a *App) initGRPCServer(_ context.Context) error {
 	a.grpcServer = grpc.NewServer(
-		grpc.StreamInterceptor(grpcValidator.StreamServerInterceptor()),
-		grpc.UnaryInterceptor(grpcValidator.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(
+			grpc_middleware.ChainStreamServer(
+				grpcValidator.StreamServerInterceptor(),
+			),
+		),
+
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpcValidator.UnaryServerInterceptor(),
+				interceptors.LoggingInterceptor,
+			),
+		),
 	)
 
 	desc.RegisterEventServiceV1Server(a.grpcServer, a.eventImpl)
