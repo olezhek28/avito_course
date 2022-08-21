@@ -13,5 +13,5 @@ func (s *Service) SendEvent(event *model.Event) error {
 		return err
 	}
 
-	return s.rabbitClient.Publish(data)
+	return s.rabbitProducer.Publish(data)
 }

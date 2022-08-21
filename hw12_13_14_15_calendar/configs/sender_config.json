@@ -1,5 +1,5 @@
 {
-  "rabbit_producer":{
+  "rabbit_consumer":{
     "dsn": "amqp://guest:guest@localhost:5672/",
     "queue_name": "events"
   }

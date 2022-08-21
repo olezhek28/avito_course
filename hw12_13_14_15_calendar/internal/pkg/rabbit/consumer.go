@@ -7,15 +7,15 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const contentType = "text/plain"
+const consumerName = ""
 
-// Client ...
-type Client interface {
-	Publish(msg []byte) error
+// Consumer ...
+type Consumer interface {
+	Consume() (<-chan amqp.Delivery, error)
 	Close() error
 }
 
-type client struct {
+type consumer struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 	queue      *amqp.Queue
@@ -25,8 +25,8 @@ type client struct {
 	closeFuncs []io.Closer
 }
 
-// NewClient ...
-func NewClient(config *config.Rabbit) (Client, error) {
+// NewConsumer ...
+func NewConsumer(config *config.RabbitConsumer) (Consumer, error) {
 	var closeFuncs []io.Closer
 
 	conn, err := amqp.Dial(config.DSN)
@@ -53,7 +53,16 @@ func NewClient(config *config.Rabbit) (Client, error) {
 		return nil, err
 	}
 
-	return &client{
+	err = ch.Qos(
+		1,
+		0,
+		false,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &consumer{
 		connection: conn,
 		channel:    ch,
 		queue:      &q,
@@ -61,26 +70,26 @@ func NewClient(config *config.Rabbit) (Client, error) {
 	}, nil
 }
 
-func (c *client) Publish(msg []byte) error {
-	err := c.channel.Publish(
-		"",
+// Consume ...
+func (c *consumer) Consume() (<-chan amqp.Delivery, error) {
+	msgChan, err := c.channel.Consume(
 		c.queueName,
+		consumerName,
 		false,
 		false,
-		amqp.Publishing{
-			DeliveryMode: amqp.Persistent,
-			ContentType:  contentType,
-			Body:         msg,
-		},
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return msgChan, nil
 }
 
-func (c *client) Close() error {
+// Close ...
+func (c *consumer) Close() error {
 	for _, closeFunc := range c.closeFuncs {
 		closeFunc.Close()
 	}

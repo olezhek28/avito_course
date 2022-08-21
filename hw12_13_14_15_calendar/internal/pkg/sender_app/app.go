@@ -24,13 +24,13 @@ func NewApp(ctx context.Context, pathConfig string) (*App, error) {
 
 func (a *App) Run(ctx context.Context) error {
 	defer func() {
-		a.serviceProvider.rabbitProducer.Close()
+		a.serviceProvider.rabbitConsumer.Close()
 	}()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
-	err := a.runSchedulerService(ctx, wg)
+	err := a.runSenderService(ctx, wg)
 	if err != nil {
 		return err
 	}
@@ -59,15 +59,15 @@ func (a *App) initServiceProvider(_ context.Context) error {
 	return nil
 }
 
-func (a *App) runSchedulerService(ctx context.Context, wg *sync.WaitGroup) error {
+func (a *App) runSenderService(ctx context.Context, wg *sync.WaitGroup) error {
 	go func() {
 		defer wg.Done()
 
-		if err := a.serviceProvider.GetSchedulerService().Run(ctx); err != nil {
-			log.Fatalf("failed to process scheduler service: %s", err.Error())
+		if err := a.serviceProvider.GetSenderService().Run(); err != nil {
+			log.Fatalf("failed to process sender service: %s", err.Error())
 		}
 	}()
 
-	log.Printf("Run scheduler service ...\n")
+	log.Printf("Run sender service ...\n")
 	return nil
 }

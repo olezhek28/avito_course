@@ -9,10 +9,10 @@ LOCAL_MIGRATION_DIR=./migrations
 LOCAL_MIGRATION_DSN="host=localhost port=54321 dbname=event-service user=event-service-user password=event-service-password sslmode=disable"
 
 build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/scheduler
 
 run: build
-	$(BIN) -config ./configs/calendar_config.json
+	$(BIN) -config ./configs/scheduler_config.json
 
 build-img:
 	docker build \

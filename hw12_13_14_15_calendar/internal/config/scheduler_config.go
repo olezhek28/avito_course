@@ -5,15 +5,15 @@ import (
 	"io/ioutil"
 )
 
-// Rabbit ...
-type Rabbit struct {
+// RabbitProducer ...
+type RabbitProducer struct {
 	DSN       string `json:"dsn"`
 	QueueName string `json:"queue_name"`
 }
 
 // SchedulerConfig ...
 type SchedulerConfig struct {
-	Rabbit *Rabbit `json:"rabbit"`
+	RabbitProducer *RabbitProducer `json:"rabbit_producer"`
 }
 
 // NewSchedulerConfig ...
@@ -32,7 +32,7 @@ func NewSchedulerConfig(path string) (*SchedulerConfig, error) {
 	return config, nil
 }
 
-// GetRabbitConfig ...
-func (c *SchedulerConfig) GetRabbitConfig() (*Rabbit, error) {
-	return c.Rabbit, nil
+// GetRabbitProducerConfig ...
+func (c *SchedulerConfig) GetRabbitProducerConfig() (*RabbitProducer, error) {
+	return c.RabbitProducer, nil
 }

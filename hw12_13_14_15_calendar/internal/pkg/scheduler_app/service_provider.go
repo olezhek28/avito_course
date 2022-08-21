@@ -9,9 +9,9 @@ import (
 )
 
 type serviceProvider struct {
-	rabbit     rabbit.Client
-	configPath string
-	config     *config.SchedulerConfig
+	rabbitProducer rabbit.Producer
+	configPath     string
+	config         *config.SchedulerConfig
 
 	schedulerService *scheduler.Service
 }
@@ -22,22 +22,22 @@ func newServiceProvider(configPath string) *serviceProvider {
 	}
 }
 
-// GetRabbit ...
-func (s *serviceProvider) GetRabbit() rabbit.Client {
-	if s.rabbit == nil {
-		cfg, err := s.GetConfig().GetRabbitConfig()
+// GetRabbitProducer ...
+func (s *serviceProvider) GetRabbitProducer() rabbit.Producer {
+	if s.rabbitProducer == nil {
+		cfg, err := s.GetConfig().GetRabbitProducerConfig()
 		if err != nil {
-			log.Fatalf("failed to get rabbit config: %s", err.Error())
+			log.Fatalf("failed to get rabbit producer config: %s", err.Error())
 		}
 
-		rc, err := rabbit.NewClient(cfg)
+		rp, err := rabbit.NewProducer(cfg)
 		if err != nil {
-			log.Fatalf("can`t connect to rabbit err: %s", err.Error())
+			log.Fatalf("can`t connect to rabbit producer err: %s", err.Error())
 		}
-		s.rabbit = rc
+		s.rabbitProducer = rp
 	}
 
-	return s.rabbit
+	return s.rabbitProducer
 }
 
 // GetConfig ...
@@ -57,7 +57,7 @@ func (s *serviceProvider) GetConfig() *config.SchedulerConfig {
 // GetSchedulerService ...
 func (s *serviceProvider) GetSchedulerService() *scheduler.Service {
 	if s.schedulerService == nil {
-		s.schedulerService = scheduler.NewService(s.GetRabbit())
+		s.schedulerService = scheduler.NewService(s.GetRabbitProducer())
 	}
 
 	return s.schedulerService
