@@ -28,21 +28,21 @@ type DB struct {
 	MaxOpenConnections int32  `json:"max_open_connections"`
 }
 
-// Config ...
-type Config struct {
+// CalendarConfig ...
+type CalendarConfig struct {
 	Logger LoggerConf `json:"logger"`
 	Source SourceConf `json:"source"`
 	DB     DB         `json:"db"`
 }
 
-// New ...
-func New(path string) (*Config, error) {
+// NewCalendarConfig ...
+func NewCalendarConfig(path string) (*CalendarConfig, error) {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	config := &Config{}
+	config := &CalendarConfig{}
 	err = json.Unmarshal(file, &config)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func New(path string) (*Config, error) {
 }
 
 // GetDbConfig ...
-func (c *Config) GetDbConfig() (*pgxpool.Config, error) {
+func (c *CalendarConfig) GetDbConfig() (*pgxpool.Config, error) {
 	password := "event-service-password"
 
 	dbDsn := strings.ReplaceAll(c.DB.DSN, dbPassEscSeq, password)

@@ -1,4 +1,4 @@
-package app
+package calendar_app
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcValidator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	eventV1 "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/api/event_v1"
@@ -42,6 +42,10 @@ func NewApp(ctx context.Context, pathConfig string) (*App, error) {
 }
 
 func (a *App) Run() error {
+	defer func() {
+		a.serviceProvider.db.Close()
+	}()
+
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
@@ -93,13 +97,13 @@ func (a *App) initServer(ctx context.Context) error {
 func (a *App) initGRPCServer(_ context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.StreamInterceptor(
-			grpc_middleware.ChainStreamServer(
+			grpcMiddleware.ChainStreamServer(
 				grpcValidator.StreamServerInterceptor(),
 			),
 		),
 
 		grpc.UnaryInterceptor(
-			grpc_middleware.ChainUnaryServer(
+			grpcMiddleware.ChainUnaryServer(
 				grpcValidator.UnaryServerInterceptor(),
 				interceptors.LoggingInterceptor,
 			),

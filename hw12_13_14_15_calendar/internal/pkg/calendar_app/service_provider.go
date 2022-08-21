@@ -1,4 +1,4 @@
-package app
+package calendar_app
 
 import (
 	"context"
@@ -23,7 +23,7 @@ const (
 type serviceProvider struct {
 	db             db.Client
 	configPath     string
-	config         *config.Config
+	config         *config.CalendarConfig
 	logger         *logger.Logger
 	dataSourceType sourceType
 
@@ -59,9 +59,9 @@ func (s *serviceProvider) GetDB(ctx context.Context) db.Client {
 }
 
 // GetConfig ...
-func (s *serviceProvider) GetConfig() *config.Config {
+func (s *serviceProvider) GetConfig() *config.CalendarConfig {
 	if s.config == nil {
-		cfg, err := config.New(s.configPath)
+		cfg, err := config.NewCalendarConfig(s.configPath)
 		if err != nil {
 			log.Fatalf("failed to get config: %s", err.Error())
 		}

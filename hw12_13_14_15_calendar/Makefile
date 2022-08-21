@@ -12,7 +12,7 @@ build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 run: build
-	$(BIN) -config ./configs/config.json
+	$(BIN) -config ./configs/calendar_config.json
 
 build-img:
 	docker build \
