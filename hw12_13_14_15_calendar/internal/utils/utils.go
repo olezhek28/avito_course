@@ -49,3 +49,8 @@ func MapToSlice(m map[int64]*model.Event) []*model.Event {
 
 	return events
 }
+
+// RoundUpToMinutes ...
+func RoundUpToMinutes(date time.Time) time.Time {
+	return time.Date(date.Year(), date.Month(), date.Day(), date.Hour(), date.Minute(), 0, 0, date.Location())
+}

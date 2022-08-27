@@ -228,9 +228,8 @@
           "format": "date-time",
           "title": "Дата и время окончания события"
         },
-        "notification_interval_min": {
+        "notification_interval": {
           "type": "string",
-          "format": "int64",
           "title": "Интервал времени для уведомления о событии"
         },
         "description": {
@@ -294,9 +293,8 @@
           "format": "date-time",
           "title": "Дата и время окончания события"
         },
-        "notification_interval_min": {
+        "notification_interval": {
           "type": "string",
-          "format": "int64",
           "title": "Интервал времени для уведомления о событии"
         },
         "description": {

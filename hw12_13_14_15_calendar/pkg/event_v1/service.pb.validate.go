@@ -64,10 +64,10 @@ func (m *EventInfo) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetNotificationIntervalMin()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetNotificationInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return EventInfoValidationError{
-				field:  "NotificationIntervalMin",
+				field:  "NotificationInterval",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -995,10 +995,10 @@ func (m *UpdateEventRequest_UpdateEventInfo) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetNotificationIntervalMin()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetNotificationInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateEventRequest_UpdateEventInfoValidationError{
-				field:  "NotificationIntervalMin",
+				field:  "NotificationInterval",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

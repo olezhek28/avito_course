@@ -2,6 +2,7 @@ package memory_repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"sync"
 	"time"
@@ -33,10 +34,13 @@ func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventI
 	r.eventsByIDs[id] = &model.Event{
 		ID:        id,
 		EventInfo: eventInfo,
-		CreatedAt: &now,
+		CreatedAt: sql.NullTime{
+			Time:  now,
+			Valid: true,
+		},
 	}
 
-	beginDay := utils.BeginningOfDay(*eventInfo.StartDate)
+	beginDay := utils.BeginningOfDay(eventInfo.StartDate.Time)
 	if _, found := r.eventsByDate[beginDay]; !found {
 		r.eventsByDate[beginDay] = make(map[int64]*model.Event)
 	}
@@ -57,7 +61,7 @@ func (r *eventRepository) DeleteEvent(_ context.Context, eventID int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	beginDay := utils.BeginningOfDay(*r.eventsByIDs[eventID].EventInfo.StartDate)
+	beginDay := utils.BeginningOfDay(r.eventsByIDs[eventID].EventInfo.StartDate.Time)
 	delete(r.eventsByDate[beginDay], eventID)
 	delete(r.eventsByIDs, eventID)
 
@@ -111,4 +115,9 @@ func (r *eventRepository) GetEventListForMonth(_ context.Context, monthStart tim
 	}
 
 	return events, nil
+}
+
+func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time) ([]*model.Event, error) {
+	// TODO implement me
+	panic("implement me")
 }
