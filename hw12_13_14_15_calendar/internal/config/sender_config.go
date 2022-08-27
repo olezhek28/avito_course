@@ -33,6 +33,6 @@ func NewSenderConfig(path string) (*SenderConfig, error) {
 }
 
 // GetRabbitConsumerConfig ...
-func (c *SenderConfig) GetRabbitConsumerConfig() (*RabbitConsumer, error) {
-	return c.RabbitConsumer, nil
+func (c *SenderConfig) GetRabbitConsumerConfig() *RabbitConsumer {
+	return c.RabbitConsumer
 }

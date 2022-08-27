@@ -30,9 +30,9 @@ type DB struct {
 
 // CalendarConfig ...
 type CalendarConfig struct {
-	Logger LoggerConf `json:"logger"`
-	Source SourceConf `json:"source"`
-	DB     DB         `json:"db"`
+	Logger *LoggerConf `json:"logger"`
+	Source *SourceConf `json:"source"`
+	DB     *DB         `json:"db"`
 }
 
 // NewCalendarConfig ...

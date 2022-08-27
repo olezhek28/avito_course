@@ -25,12 +25,7 @@ func newServiceProvider(configPath string) *serviceProvider {
 // GetRabbitConsumer ...
 func (s *serviceProvider) GetRabbitConsumer() rabbit.Consumer {
 	if s.rabbitConsumer == nil {
-		cfg, err := s.GetConfig().GetRabbitConsumerConfig()
-		if err != nil {
-			log.Fatalf("failed to get rabbit consumer config: %s", err.Error())
-		}
-
-		rc, err := rabbit.NewConsumer(cfg)
+		rc, err := rabbit.NewConsumer(s.GetConfig().GetRabbitConsumerConfig())
 		if err != nil {
 			log.Fatalf("can`t connect to rabbit consumer err: %s", err.Error())
 		}

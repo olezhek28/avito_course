@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db"
 	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory"
@@ -13,19 +14,12 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
 )
 
-type sourceType int64
-
-const (
-	dbSource sourceType = iota
-	memorySource
-)
-
 type serviceProvider struct {
 	db             db.Client
 	configPath     string
 	config         *config.CalendarConfig
 	logger         *logger.Logger
-	dataSourceType sourceType
+	dataSourceType model.SourceType
 
 	// repositories
 	eventRepository repository.EventRepository
@@ -83,9 +77,9 @@ func (s *serviceProvider) GetLogger() *logger.Logger {
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
-		if s.dataSourceType == dbSource {
+		if s.dataSourceType == model.DbSource {
 			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
-		} else if s.dataSourceType == memorySource {
+		} else if s.dataSourceType == model.MemorySource {
 			s.eventRepository = memoryRepository.NewEventRepository()
 		}
 	}

@@ -1,18 +1,31 @@
 package calendar_app
 
 import (
+	"context"
 	"log"
+	"time"
 
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
+	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db"
+	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/scheduler"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/rabbit"
 )
 
 type serviceProvider struct {
+	db             db.Client
 	rabbitProducer rabbit.Producer
 	configPath     string
 	config         *config.SchedulerConfig
+	dataSourceType model.SourceType
 
+	// repositories
+	eventRepository repository.EventRepository
+
+	// services
 	schedulerService *scheduler.Service
 }
 
@@ -22,22 +35,22 @@ func newServiceProvider(configPath string) *serviceProvider {
 	}
 }
 
-// GetRabbitProducer ...
-func (s *serviceProvider) GetRabbitProducer() rabbit.Producer {
-	if s.rabbitProducer == nil {
-		cfg, err := s.GetConfig().GetRabbitProducerConfig()
+// GetDB ...
+func (s *serviceProvider) GetDB(ctx context.Context) db.Client {
+	if s.db == nil {
+		cfg, err := s.GetConfig().GetDbConfig()
 		if err != nil {
-			log.Fatalf("failed to get rabbit producer config: %s", err.Error())
+			log.Fatalf("failed to get db config: %s", err.Error())
 		}
 
-		rp, err := rabbit.NewProducer(cfg)
+		dbc, err := db.NewClient(ctx, cfg)
 		if err != nil {
-			log.Fatalf("can`t connect to rabbit producer err: %s", err.Error())
+			log.Fatalf("can`t connect to db err: %s", err.Error())
 		}
-		s.rabbitProducer = rp
+		s.db = dbc
 	}
 
-	return s.rabbitProducer
+	return s.db
 }
 
 // GetConfig ...
@@ -54,10 +67,40 @@ func (s *serviceProvider) GetConfig() *config.SchedulerConfig {
 	return s.config
 }
 
+// GetRabbitProducer ...
+func (s *serviceProvider) GetRabbitProducer() rabbit.Producer {
+	if s.rabbitProducer == nil {
+		rp, err := rabbit.NewProducer(s.GetConfig().GetRabbitProducerConfig())
+		if err != nil {
+			log.Fatalf("can`t connect to rabbit producer err: %s", err.Error())
+		}
+		s.rabbitProducer = rp
+	}
+
+	return s.rabbitProducer
+}
+
+// GetEventRepository ...
+func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
+	if s.eventRepository == nil {
+		if s.dataSourceType == model.DbSource {
+			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
+		} else if s.dataSourceType == model.MemorySource {
+			s.eventRepository = memoryRepository.NewEventRepository()
+		}
+	}
+
+	return s.eventRepository
+}
+
 // GetSchedulerService ...
-func (s *serviceProvider) GetSchedulerService() *scheduler.Service {
+func (s *serviceProvider) GetSchedulerService(ctx context.Context) *scheduler.Service {
 	if s.schedulerService == nil {
-		s.schedulerService = scheduler.NewService(s.GetRabbitProducer())
+		s.schedulerService = scheduler.NewService(
+			s.GetRabbitProducer(),
+			s.GetEventRepository(ctx),
+			time.Duration(s.GetConfig().GetSchedulerConfig().CheckPeriodSec)*time.Second,
+		)
 	}
 
 	return s.schedulerService

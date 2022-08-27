@@ -63,9 +63,7 @@ func (a *App) runSchedulerService(ctx context.Context, wg *sync.WaitGroup) error
 	go func() {
 		defer wg.Done()
 
-		if err := a.serviceProvider.GetSchedulerService().Run(ctx); err != nil {
-			log.Fatalf("failed to process scheduler service: %s", err.Error())
-		}
+		a.serviceProvider.GetSchedulerService(ctx).Run(ctx)
 	}()
 
 	log.Printf("Run scheduler service ...\n")

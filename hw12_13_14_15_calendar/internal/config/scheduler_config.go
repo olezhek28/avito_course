@@ -3,6 +3,9 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strings"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 // RabbitProducer ...
@@ -11,9 +14,15 @@ type RabbitProducer struct {
 	QueueName string `json:"queue_name"`
 }
 
+type Scheduler struct {
+	CheckPeriodSec int64 `json:"check_period_sec"`
+}
+
 // SchedulerConfig ...
 type SchedulerConfig struct {
 	RabbitProducer *RabbitProducer `json:"rabbit_producer"`
+	Scheduler      *Scheduler      `json:"scheduler"`
+	DB             *DB             `json:"db"`
 }
 
 // NewSchedulerConfig ...
@@ -33,6 +42,28 @@ func NewSchedulerConfig(path string) (*SchedulerConfig, error) {
 }
 
 // GetRabbitProducerConfig ...
-func (c *SchedulerConfig) GetRabbitProducerConfig() (*RabbitProducer, error) {
-	return c.RabbitProducer, nil
+func (c *SchedulerConfig) GetRabbitProducerConfig() *RabbitProducer {
+	return c.RabbitProducer
+}
+
+// GetSchedulerConfig ...
+func (c *SchedulerConfig) GetSchedulerConfig() *Scheduler {
+	return c.Scheduler
+}
+
+// GetDbConfig ...
+func (c *SchedulerConfig) GetDbConfig() (*pgxpool.Config, error) {
+	password := "event-service-password"
+
+	dbDsn := strings.ReplaceAll(c.DB.DSN, dbPassEscSeq, password)
+
+	poolConfig, err := pgxpool.ParseConfig(dbDsn)
+	if err != nil {
+		return nil, err
+	}
+	poolConfig.ConnConfig.BuildStatementCache = nil
+	poolConfig.ConnConfig.PreferSimpleProtocol = true
+	poolConfig.MaxConns = c.DB.MaxOpenConnections
+
+	return poolConfig, nil
 }

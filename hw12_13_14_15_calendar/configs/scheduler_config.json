@@ -1,7 +1,16 @@
 {
+  "db":{
+    "dsn": "user=event-service-user dbname=event-service password={password} host=localhost port=54321 sslmode=disable",
+    "max_open_connections": 10
+  },
+
   "rabbit_producer":{
     "dsn": "amqp://guest:guest@localhost:5672/",
     "queue_name": "events"
+  },
+
+  "scheduler": {
+    "check_period_sec": 10
   }
 }
 

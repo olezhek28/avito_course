@@ -30,7 +30,7 @@ func (a *App) Run(ctx context.Context) error {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
-	err := a.runSenderService(ctx, wg)
+	err := a.runSenderService(wg)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (a *App) initServiceProvider(_ context.Context) error {
 	return nil
 }
 
-func (a *App) runSenderService(ctx context.Context, wg *sync.WaitGroup) error {
+func (a *App) runSenderService(wg *sync.WaitGroup) error {
 	go func() {
 		defer wg.Done()
 
