@@ -31,6 +31,12 @@ type EventRepositoryMock struct {
 	beforeDeleteEventCounter uint64
 	DeleteEventMock          mEventRepositoryMockDeleteEvent
 
+	funcDeleteEventsBeforeDate          func(ctx context.Context, date time.Time) (err error)
+	inspectFuncDeleteEventsBeforeDate   func(ctx context.Context, date time.Time)
+	afterDeleteEventsBeforeDateCounter  uint64
+	beforeDeleteEventsBeforeDateCounter uint64
+	DeleteEventsBeforeDateMock          mEventRepositoryMockDeleteEventsBeforeDate
+
 	funcGetEventListByDate          func(ctx context.Context, startDate time.Time, endDate time.Time) (epa1 []*model.Event, err error)
 	inspectFuncGetEventListByDate   func(ctx context.Context, startDate time.Time, endDate time.Time)
 	afterGetEventListByDateCounter  uint64
@@ -74,6 +80,9 @@ func NewEventRepositoryMock(t minimock.Tester) *EventRepositoryMock {
 
 	m.DeleteEventMock = mEventRepositoryMockDeleteEvent{mock: m}
 	m.DeleteEventMock.callArgs = []*EventRepositoryMockDeleteEventParams{}
+
+	m.DeleteEventsBeforeDateMock = mEventRepositoryMockDeleteEventsBeforeDate{mock: m}
+	m.DeleteEventsBeforeDateMock.callArgs = []*EventRepositoryMockDeleteEventsBeforeDateParams{}
 
 	m.GetEventListByDateMock = mEventRepositoryMockGetEventListByDate{mock: m}
 	m.GetEventListByDateMock.callArgs = []*EventRepositoryMockGetEventListByDateParams{}
@@ -522,6 +531,222 @@ func (m *EventRepositoryMock) MinimockDeleteEventInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcDeleteEvent != nil && mm_atomic.LoadUint64(&m.afterDeleteEventCounter) < 1 {
 		m.t.Error("Expected call to EventRepositoryMock.DeleteEvent")
+	}
+}
+
+type mEventRepositoryMockDeleteEventsBeforeDate struct {
+	mock               *EventRepositoryMock
+	defaultExpectation *EventRepositoryMockDeleteEventsBeforeDateExpectation
+	expectations       []*EventRepositoryMockDeleteEventsBeforeDateExpectation
+
+	callArgs []*EventRepositoryMockDeleteEventsBeforeDateParams
+	mutex    sync.RWMutex
+}
+
+// EventRepositoryMockDeleteEventsBeforeDateExpectation specifies expectation struct of the EventRepository.DeleteEventsBeforeDate
+type EventRepositoryMockDeleteEventsBeforeDateExpectation struct {
+	mock    *EventRepositoryMock
+	params  *EventRepositoryMockDeleteEventsBeforeDateParams
+	results *EventRepositoryMockDeleteEventsBeforeDateResults
+	Counter uint64
+}
+
+// EventRepositoryMockDeleteEventsBeforeDateParams contains parameters of the EventRepository.DeleteEventsBeforeDate
+type EventRepositoryMockDeleteEventsBeforeDateParams struct {
+	ctx  context.Context
+	date time.Time
+}
+
+// EventRepositoryMockDeleteEventsBeforeDateResults contains results of the EventRepository.DeleteEventsBeforeDate
+type EventRepositoryMockDeleteEventsBeforeDateResults struct {
+	err error
+}
+
+// Expect sets up expected params for EventRepository.DeleteEventsBeforeDate
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) Expect(ctx context.Context, date time.Time) *mEventRepositoryMockDeleteEventsBeforeDate {
+	if mmDeleteEventsBeforeDate.mock.funcDeleteEventsBeforeDate != nil {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("EventRepositoryMock.DeleteEventsBeforeDate mock is already set by Set")
+	}
+
+	if mmDeleteEventsBeforeDate.defaultExpectation == nil {
+		mmDeleteEventsBeforeDate.defaultExpectation = &EventRepositoryMockDeleteEventsBeforeDateExpectation{}
+	}
+
+	mmDeleteEventsBeforeDate.defaultExpectation.params = &EventRepositoryMockDeleteEventsBeforeDateParams{ctx, date}
+	for _, e := range mmDeleteEventsBeforeDate.expectations {
+		if minimock.Equal(e.params, mmDeleteEventsBeforeDate.defaultExpectation.params) {
+			mmDeleteEventsBeforeDate.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDeleteEventsBeforeDate.defaultExpectation.params)
+		}
+	}
+
+	return mmDeleteEventsBeforeDate
+}
+
+// Inspect accepts an inspector function that has same arguments as the EventRepository.DeleteEventsBeforeDate
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) Inspect(f func(ctx context.Context, date time.Time)) *mEventRepositoryMockDeleteEventsBeforeDate {
+	if mmDeleteEventsBeforeDate.mock.inspectFuncDeleteEventsBeforeDate != nil {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("Inspect function is already set for EventRepositoryMock.DeleteEventsBeforeDate")
+	}
+
+	mmDeleteEventsBeforeDate.mock.inspectFuncDeleteEventsBeforeDate = f
+
+	return mmDeleteEventsBeforeDate
+}
+
+// Return sets up results that will be returned by EventRepository.DeleteEventsBeforeDate
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) Return(err error) *EventRepositoryMock {
+	if mmDeleteEventsBeforeDate.mock.funcDeleteEventsBeforeDate != nil {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("EventRepositoryMock.DeleteEventsBeforeDate mock is already set by Set")
+	}
+
+	if mmDeleteEventsBeforeDate.defaultExpectation == nil {
+		mmDeleteEventsBeforeDate.defaultExpectation = &EventRepositoryMockDeleteEventsBeforeDateExpectation{mock: mmDeleteEventsBeforeDate.mock}
+	}
+	mmDeleteEventsBeforeDate.defaultExpectation.results = &EventRepositoryMockDeleteEventsBeforeDateResults{err}
+	return mmDeleteEventsBeforeDate.mock
+}
+
+//Set uses given function f to mock the EventRepository.DeleteEventsBeforeDate method
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) Set(f func(ctx context.Context, date time.Time) (err error)) *EventRepositoryMock {
+	if mmDeleteEventsBeforeDate.defaultExpectation != nil {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("Default expectation is already set for the EventRepository.DeleteEventsBeforeDate method")
+	}
+
+	if len(mmDeleteEventsBeforeDate.expectations) > 0 {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("Some expectations are already set for the EventRepository.DeleteEventsBeforeDate method")
+	}
+
+	mmDeleteEventsBeforeDate.mock.funcDeleteEventsBeforeDate = f
+	return mmDeleteEventsBeforeDate.mock
+}
+
+// When sets expectation for the EventRepository.DeleteEventsBeforeDate which will trigger the result defined by the following
+// Then helper
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) When(ctx context.Context, date time.Time) *EventRepositoryMockDeleteEventsBeforeDateExpectation {
+	if mmDeleteEventsBeforeDate.mock.funcDeleteEventsBeforeDate != nil {
+		mmDeleteEventsBeforeDate.mock.t.Fatalf("EventRepositoryMock.DeleteEventsBeforeDate mock is already set by Set")
+	}
+
+	expectation := &EventRepositoryMockDeleteEventsBeforeDateExpectation{
+		mock:   mmDeleteEventsBeforeDate.mock,
+		params: &EventRepositoryMockDeleteEventsBeforeDateParams{ctx, date},
+	}
+	mmDeleteEventsBeforeDate.expectations = append(mmDeleteEventsBeforeDate.expectations, expectation)
+	return expectation
+}
+
+// Then sets up EventRepository.DeleteEventsBeforeDate return parameters for the expectation previously defined by the When method
+func (e *EventRepositoryMockDeleteEventsBeforeDateExpectation) Then(err error) *EventRepositoryMock {
+	e.results = &EventRepositoryMockDeleteEventsBeforeDateResults{err}
+	return e.mock
+}
+
+// DeleteEventsBeforeDate implements repository.EventRepository
+func (mmDeleteEventsBeforeDate *EventRepositoryMock) DeleteEventsBeforeDate(ctx context.Context, date time.Time) (err error) {
+	mm_atomic.AddUint64(&mmDeleteEventsBeforeDate.beforeDeleteEventsBeforeDateCounter, 1)
+	defer mm_atomic.AddUint64(&mmDeleteEventsBeforeDate.afterDeleteEventsBeforeDateCounter, 1)
+
+	if mmDeleteEventsBeforeDate.inspectFuncDeleteEventsBeforeDate != nil {
+		mmDeleteEventsBeforeDate.inspectFuncDeleteEventsBeforeDate(ctx, date)
+	}
+
+	mm_params := &EventRepositoryMockDeleteEventsBeforeDateParams{ctx, date}
+
+	// Record call args
+	mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.mutex.Lock()
+	mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.callArgs = append(mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.callArgs, mm_params)
+	mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.mutex.Unlock()
+
+	for _, e := range mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.defaultExpectation.Counter, 1)
+		mm_want := mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.defaultExpectation.params
+		mm_got := EventRepositoryMockDeleteEventsBeforeDateParams{ctx, date}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmDeleteEventsBeforeDate.t.Errorf("EventRepositoryMock.DeleteEventsBeforeDate got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmDeleteEventsBeforeDate.DeleteEventsBeforeDateMock.defaultExpectation.results
+		if mm_results == nil {
+			mmDeleteEventsBeforeDate.t.Fatal("No results are set for the EventRepositoryMock.DeleteEventsBeforeDate")
+		}
+		return (*mm_results).err
+	}
+	if mmDeleteEventsBeforeDate.funcDeleteEventsBeforeDate != nil {
+		return mmDeleteEventsBeforeDate.funcDeleteEventsBeforeDate(ctx, date)
+	}
+	mmDeleteEventsBeforeDate.t.Fatalf("Unexpected call to EventRepositoryMock.DeleteEventsBeforeDate. %v %v", ctx, date)
+	return
+}
+
+// DeleteEventsBeforeDateAfterCounter returns a count of finished EventRepositoryMock.DeleteEventsBeforeDate invocations
+func (mmDeleteEventsBeforeDate *EventRepositoryMock) DeleteEventsBeforeDateAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDeleteEventsBeforeDate.afterDeleteEventsBeforeDateCounter)
+}
+
+// DeleteEventsBeforeDateBeforeCounter returns a count of EventRepositoryMock.DeleteEventsBeforeDate invocations
+func (mmDeleteEventsBeforeDate *EventRepositoryMock) DeleteEventsBeforeDateBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmDeleteEventsBeforeDate.beforeDeleteEventsBeforeDateCounter)
+}
+
+// Calls returns a list of arguments used in each call to EventRepositoryMock.DeleteEventsBeforeDate.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmDeleteEventsBeforeDate *mEventRepositoryMockDeleteEventsBeforeDate) Calls() []*EventRepositoryMockDeleteEventsBeforeDateParams {
+	mmDeleteEventsBeforeDate.mutex.RLock()
+
+	argCopy := make([]*EventRepositoryMockDeleteEventsBeforeDateParams, len(mmDeleteEventsBeforeDate.callArgs))
+	copy(argCopy, mmDeleteEventsBeforeDate.callArgs)
+
+	mmDeleteEventsBeforeDate.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockDeleteEventsBeforeDateDone returns true if the count of the DeleteEventsBeforeDate invocations corresponds
+// the number of defined expectations
+func (m *EventRepositoryMock) MinimockDeleteEventsBeforeDateDone() bool {
+	for _, e := range m.DeleteEventsBeforeDateMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DeleteEventsBeforeDateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteEventsBeforeDateCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDeleteEventsBeforeDate != nil && mm_atomic.LoadUint64(&m.afterDeleteEventsBeforeDateCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockDeleteEventsBeforeDateInspect logs each unmet expectation
+func (m *EventRepositoryMock) MinimockDeleteEventsBeforeDateInspect() {
+	for _, e := range m.DeleteEventsBeforeDateMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to EventRepositoryMock.DeleteEventsBeforeDate with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.DeleteEventsBeforeDateMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteEventsBeforeDateCounter) < 1 {
+		if m.DeleteEventsBeforeDateMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to EventRepositoryMock.DeleteEventsBeforeDate")
+		} else {
+			m.t.Errorf("Expected call to EventRepositoryMock.DeleteEventsBeforeDate with params: %#v", *m.DeleteEventsBeforeDateMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcDeleteEventsBeforeDate != nil && mm_atomic.LoadUint64(&m.afterDeleteEventsBeforeDateCounter) < 1 {
+		m.t.Error("Expected call to EventRepositoryMock.DeleteEventsBeforeDate")
 	}
 }
 
@@ -1618,6 +1843,8 @@ func (m *EventRepositoryMock) MinimockFinish() {
 
 		m.MinimockDeleteEventInspect()
 
+		m.MinimockDeleteEventsBeforeDateInspect()
+
 		m.MinimockGetEventListByDateInspect()
 
 		m.MinimockGetEventListForDayInspect()
@@ -1652,6 +1879,7 @@ func (m *EventRepositoryMock) minimockDone() bool {
 	return done &&
 		m.MinimockCreateEventDone() &&
 		m.MinimockDeleteEventDone() &&
+		m.MinimockDeleteEventsBeforeDateDone() &&
 		m.MinimockGetEventListByDateDone() &&
 		m.MinimockGetEventListForDayDone() &&
 		m.MinimockGetEventListForMonthDone() &&

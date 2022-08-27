@@ -117,7 +117,14 @@ func (r *eventRepository) GetEventListForMonth(_ context.Context, monthStart tim
 	return events, nil
 }
 
+// GetEventListByDate ...
 func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+// DeleteEventsBeforeDate ...
+func (r *eventRepository) DeleteEventsBeforeDate(ctx context.Context, date time.Time) error {
 	// TODO implement me
 	panic("implement me")
 }

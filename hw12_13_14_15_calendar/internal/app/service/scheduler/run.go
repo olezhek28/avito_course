@@ -10,6 +10,9 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/utils"
 )
 
+// 1 year
+const eventTtl = time.Second * 60 * 60 * 24 * 365
+
 func (s *Service) Run(ctx context.Context) {
 	ticker := time.NewTicker(s.checkPeriod)
 
@@ -43,6 +46,11 @@ func (s *Service) handleEvents(ctx context.Context) error {
 		return err
 	}
 
+	err = s.deleteOldEvents(ctx)
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Handle events success ...")
 	return nil
 }
@@ -61,4 +69,10 @@ func (s *Service) sendEvent(event []*model.Event) error {
 	}
 
 	return s.rabbitProducer.Publish(data)
+}
+
+func (s *Service) deleteOldEvents(ctx context.Context) error {
+	date := time.Now().Add(-eventTtl)
+
+	return s.eventRepository.DeleteEventsBeforeDate(ctx, date)
 }

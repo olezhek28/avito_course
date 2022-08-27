@@ -224,3 +224,24 @@ func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time
 
 	return res, nil
 }
+
+// DeleteEventsBeforeDate ...
+func (r *eventRepository) DeleteEventsBeforeDate(ctx context.Context, date time.Time) error {
+	builder := sq.Delete(table.Event).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Lt{"start_date": date})
+
+	query, v, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	q := db.Query{
+		Name:     "repository.DeleteEventsBeforeDate",
+		QueryRaw: query,
+	}
+
+	_, err = r.db.DB().ExecContext(ctx, q, v...)
+
+	return err
+}
