@@ -21,5 +21,13 @@ func (s *Service) UpdateEvent(ctx context.Context, eventID sql.NullInt64, update
 		return status.Error(codes.InvalidArgument, err.ErrInvalidEventID)
 	}
 
+	updateEventInfo.NotificationDate = sql.NullTime{
+		Time:  updateEventInfo.StartDate.Time,
+		Valid: updateEventInfo.StartDate.Valid,
+	}
+	if updateEventInfo.NotificationInterval != nil {
+		updateEventInfo.NotificationDate.Time = updateEventInfo.StartDate.Time.Add(-*updateEventInfo.NotificationInterval)
+	}
+
 	return s.eventRepository.UpdateEvent(ctx, eventID.Int64, updateEventInfo)
 }

@@ -64,7 +64,7 @@ func (r *eventRepository) UpdateEvent(ctx context.Context, eventID int64, update
 		builder = builder.Set("end_date", updateEventInfo.EndDate.Time)
 	}
 	if updateEventInfo.NotificationInterval != nil {
-		builder = builder.Set("notification_interval_min", updateEventInfo.NotificationInterval.Nanoseconds())
+		builder = builder.Set("notification_interval", updateEventInfo.NotificationInterval.Nanoseconds())
 	}
 	if updateEventInfo.Description.Valid {
 		builder = builder.Set("description", updateEventInfo.Description.String)
@@ -191,11 +191,20 @@ func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart t
 }
 
 // GetEventListByDate ...
-func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
+func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
+	builder := sq.Select("id, title, notification_date, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
-		Where(sq.Eq{"start_date": startDate})
+		Where(sq.Or{
+			sq.And{
+				sq.Gt{"start_date": startDate},
+				sq.LtOrEq{"start_date": endDate},
+			},
+			sq.And{
+				sq.Gt{"notification_date": startDate},
+				sq.LtOrEq{"notification_date": endDate},
+			},
+		})
 
 	query, v, err := builder.ToSql()
 	if err != nil {

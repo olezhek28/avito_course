@@ -19,5 +19,5 @@ type EventRepository interface {
 	GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error)
 	GetEventListForWeek(ctx context.Context, weekStart time.Time) ([]*model.Event, error)
 	GetEventListForMonth(ctx context.Context, monthStart time.Time) ([]*model.Event, error)
-	GetEventListByDate(ctx context.Context, startDate time.Time) ([]*model.Event, error)
+	GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error)
 }

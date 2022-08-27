@@ -31,8 +31,8 @@ type EventRepositoryMock struct {
 	beforeDeleteEventCounter uint64
 	DeleteEventMock          mEventRepositoryMockDeleteEvent
 
-	funcGetEventListByDate          func(ctx context.Context, startDate time.Time) (epa1 []*model.Event, err error)
-	inspectFuncGetEventListByDate   func(ctx context.Context, startDate time.Time)
+	funcGetEventListByDate          func(ctx context.Context, startDate time.Time, endDate time.Time) (epa1 []*model.Event, err error)
+	inspectFuncGetEventListByDate   func(ctx context.Context, startDate time.Time, endDate time.Time)
 	afterGetEventListByDateCounter  uint64
 	beforeGetEventListByDateCounter uint64
 	GetEventListByDateMock          mEventRepositoryMockGetEventListByDate
@@ -546,6 +546,7 @@ type EventRepositoryMockGetEventListByDateExpectation struct {
 type EventRepositoryMockGetEventListByDateParams struct {
 	ctx       context.Context
 	startDate time.Time
+	endDate   time.Time
 }
 
 // EventRepositoryMockGetEventListByDateResults contains results of the EventRepository.GetEventListByDate
@@ -555,7 +556,7 @@ type EventRepositoryMockGetEventListByDateResults struct {
 }
 
 // Expect sets up expected params for EventRepository.GetEventListByDate
-func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Expect(ctx context.Context, startDate time.Time) *mEventRepositoryMockGetEventListByDate {
+func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Expect(ctx context.Context, startDate time.Time, endDate time.Time) *mEventRepositoryMockGetEventListByDate {
 	if mmGetEventListByDate.mock.funcGetEventListByDate != nil {
 		mmGetEventListByDate.mock.t.Fatalf("EventRepositoryMock.GetEventListByDate mock is already set by Set")
 	}
@@ -564,7 +565,7 @@ func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Expect(ctx c
 		mmGetEventListByDate.defaultExpectation = &EventRepositoryMockGetEventListByDateExpectation{}
 	}
 
-	mmGetEventListByDate.defaultExpectation.params = &EventRepositoryMockGetEventListByDateParams{ctx, startDate}
+	mmGetEventListByDate.defaultExpectation.params = &EventRepositoryMockGetEventListByDateParams{ctx, startDate, endDate}
 	for _, e := range mmGetEventListByDate.expectations {
 		if minimock.Equal(e.params, mmGetEventListByDate.defaultExpectation.params) {
 			mmGetEventListByDate.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetEventListByDate.defaultExpectation.params)
@@ -575,7 +576,7 @@ func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Expect(ctx c
 }
 
 // Inspect accepts an inspector function that has same arguments as the EventRepository.GetEventListByDate
-func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Inspect(f func(ctx context.Context, startDate time.Time)) *mEventRepositoryMockGetEventListByDate {
+func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Inspect(f func(ctx context.Context, startDate time.Time, endDate time.Time)) *mEventRepositoryMockGetEventListByDate {
 	if mmGetEventListByDate.mock.inspectFuncGetEventListByDate != nil {
 		mmGetEventListByDate.mock.t.Fatalf("Inspect function is already set for EventRepositoryMock.GetEventListByDate")
 	}
@@ -599,7 +600,7 @@ func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Return(epa1 
 }
 
 //Set uses given function f to mock the EventRepository.GetEventListByDate method
-func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Set(f func(ctx context.Context, startDate time.Time) (epa1 []*model.Event, err error)) *EventRepositoryMock {
+func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Set(f func(ctx context.Context, startDate time.Time, endDate time.Time) (epa1 []*model.Event, err error)) *EventRepositoryMock {
 	if mmGetEventListByDate.defaultExpectation != nil {
 		mmGetEventListByDate.mock.t.Fatalf("Default expectation is already set for the EventRepository.GetEventListByDate method")
 	}
@@ -614,14 +615,14 @@ func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) Set(f func(c
 
 // When sets expectation for the EventRepository.GetEventListByDate which will trigger the result defined by the following
 // Then helper
-func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) When(ctx context.Context, startDate time.Time) *EventRepositoryMockGetEventListByDateExpectation {
+func (mmGetEventListByDate *mEventRepositoryMockGetEventListByDate) When(ctx context.Context, startDate time.Time, endDate time.Time) *EventRepositoryMockGetEventListByDateExpectation {
 	if mmGetEventListByDate.mock.funcGetEventListByDate != nil {
 		mmGetEventListByDate.mock.t.Fatalf("EventRepositoryMock.GetEventListByDate mock is already set by Set")
 	}
 
 	expectation := &EventRepositoryMockGetEventListByDateExpectation{
 		mock:   mmGetEventListByDate.mock,
-		params: &EventRepositoryMockGetEventListByDateParams{ctx, startDate},
+		params: &EventRepositoryMockGetEventListByDateParams{ctx, startDate, endDate},
 	}
 	mmGetEventListByDate.expectations = append(mmGetEventListByDate.expectations, expectation)
 	return expectation
@@ -634,15 +635,15 @@ func (e *EventRepositoryMockGetEventListByDateExpectation) Then(epa1 []*model.Ev
 }
 
 // GetEventListByDate implements repository.EventRepository
-func (mmGetEventListByDate *EventRepositoryMock) GetEventListByDate(ctx context.Context, startDate time.Time) (epa1 []*model.Event, err error) {
+func (mmGetEventListByDate *EventRepositoryMock) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) (epa1 []*model.Event, err error) {
 	mm_atomic.AddUint64(&mmGetEventListByDate.beforeGetEventListByDateCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetEventListByDate.afterGetEventListByDateCounter, 1)
 
 	if mmGetEventListByDate.inspectFuncGetEventListByDate != nil {
-		mmGetEventListByDate.inspectFuncGetEventListByDate(ctx, startDate)
+		mmGetEventListByDate.inspectFuncGetEventListByDate(ctx, startDate, endDate)
 	}
 
-	mm_params := &EventRepositoryMockGetEventListByDateParams{ctx, startDate}
+	mm_params := &EventRepositoryMockGetEventListByDateParams{ctx, startDate, endDate}
 
 	// Record call args
 	mmGetEventListByDate.GetEventListByDateMock.mutex.Lock()
@@ -659,7 +660,7 @@ func (mmGetEventListByDate *EventRepositoryMock) GetEventListByDate(ctx context.
 	if mmGetEventListByDate.GetEventListByDateMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetEventListByDate.GetEventListByDateMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetEventListByDate.GetEventListByDateMock.defaultExpectation.params
-		mm_got := EventRepositoryMockGetEventListByDateParams{ctx, startDate}
+		mm_got := EventRepositoryMockGetEventListByDateParams{ctx, startDate, endDate}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetEventListByDate.t.Errorf("EventRepositoryMock.GetEventListByDate got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -671,9 +672,9 @@ func (mmGetEventListByDate *EventRepositoryMock) GetEventListByDate(ctx context.
 		return (*mm_results).epa1, (*mm_results).err
 	}
 	if mmGetEventListByDate.funcGetEventListByDate != nil {
-		return mmGetEventListByDate.funcGetEventListByDate(ctx, startDate)
+		return mmGetEventListByDate.funcGetEventListByDate(ctx, startDate, endDate)
 	}
-	mmGetEventListByDate.t.Fatalf("Unexpected call to EventRepositoryMock.GetEventListByDate. %v %v", ctx, startDate)
+	mmGetEventListByDate.t.Fatalf("Unexpected call to EventRepositoryMock.GetEventListByDate. %v %v %v", ctx, startDate, endDate)
 	return
 }
 

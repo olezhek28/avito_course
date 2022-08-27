@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/utils"
 )
 
 func (s *Service) Run(ctx context.Context) {
@@ -47,10 +48,10 @@ func (s *Service) handleEvents(ctx context.Context) error {
 }
 
 func (s *Service) getEvents(ctx context.Context) ([]*model.Event, error) {
-	now := time.Now()
-	startDate := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), 0, 0, now.Location())
+	endDate := utils.RoundUpToMinutes(time.Now())
+	startDate := endDate.Add(-s.checkPeriod)
 
-	return s.eventRepository.GetEventListByDate(ctx, startDate)
+	return s.eventRepository.GetEventListByDate(ctx, startDate, endDate)
 }
 
 func (s *Service) sendEvent(event []*model.Event) error {

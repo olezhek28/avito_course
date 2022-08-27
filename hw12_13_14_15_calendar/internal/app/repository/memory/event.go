@@ -117,7 +117,7 @@ func (r *eventRepository) GetEventListForMonth(_ context.Context, monthStart tim
 	return events, nil
 }
 
-func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time) ([]*model.Event, error) {
+func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
 	// TODO implement me
 	panic("implement me")
 }
