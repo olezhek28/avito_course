@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gojuno/minimock/v3"
@@ -13,10 +14,12 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	repoMocks "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/mocks"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -31,32 +34,41 @@ func TestImplementation_UpdateEvent(t *testing.T) {
 	}
 
 	var (
-		mc         = minimock.NewController(t)
-		ctx        = context.Background()
-		eventID    = gofakeit.Int64()
-		eventTitle = gofakeit.Phrase()
-		eventDate  = gofakeit.Date()
-		eventOwner = gofakeit.Name()
+		mc                   = minimock.NewController(t)
+		ctx                  = context.Background()
+		ID                   = gofakeit.Int64()
+		title                = gofakeit.Phrase()
+		startDate            = gofakeit.Date()
+		endDate              = gofakeit.Date()
+		notificationInterval = time.Duration(gofakeit.Number(1, 100))
+		description          = gofakeit.Phrase()
+		ownerID              = gofakeit.Int64()
 
 		repoErr               = fmt.Errorf(gofakeit.Phrase())
 		invalidIDError        = status.Error(codes.InvalidArgument, err.ErrInvalidEventID)
 		invalidArgumentsError = status.Error(codes.InvalidArgument, err.ErrInvalidArguments)
 
 		req = &desc.UpdateEventRequest{
-			Id: &wrapperspb.Int64Value{Value: eventID},
+			Id: &wrapperspb.Int64Value{Value: ID},
 			UpdateEventInfo: &desc.UpdateEventRequest_UpdateEventInfo{
-				Title: &wrapperspb.StringValue{Value: eventTitle},
-				Date:  timestamppb.New(eventDate),
-				Owner: &wrapperspb.StringValue{Value: eventOwner},
+				Title:                &wrapperspb.StringValue{Value: title},
+				StartDate:            timestamppb.New(startDate),
+				EndDate:              timestamppb.New(endDate),
+				NotificationInterval: durationpb.New(notificationInterval),
+				Description:          &wrapperspb.StringValue{Value: description},
+				OwnerId:              &wrapperspb.Int64Value{Value: ownerID},
 			},
 		}
 
 		reqWithInvalidID = &desc.UpdateEventRequest{
 			Id: nil,
 			UpdateEventInfo: &desc.UpdateEventRequest_UpdateEventInfo{
-				Title: &wrapperspb.StringValue{Value: eventTitle},
-				Date:  timestamppb.New(eventDate),
-				Owner: &wrapperspb.StringValue{Value: eventOwner},
+				Title:                &wrapperspb.StringValue{Value: title},
+				StartDate:            timestamppb.New(startDate),
+				EndDate:              timestamppb.New(endDate),
+				NotificationInterval: durationpb.New(notificationInterval),
+				Description:          &wrapperspb.StringValue{Value: description},
+				OwnerId:              &wrapperspb.Int64Value{Value: ownerID},
 			},
 		}
 
@@ -66,9 +78,13 @@ func TestImplementation_UpdateEvent(t *testing.T) {
 		}
 
 		updateEventInfoRepoReq = &model.UpdateEventInfo{
-			Title: sql.NullString{String: eventTitle, Valid: true},
-			Date:  sql.NullTime{Time: eventDate, Valid: true},
-			Owner: sql.NullString{String: eventOwner, Valid: true},
+			Title:                sql.NullString{String: title, Valid: true},
+			NotificationDate:     sql.NullTime{Time: startDate.Add(-notificationInterval), Valid: true},
+			StartDate:            sql.NullTime{Time: startDate, Valid: true},
+			EndDate:              sql.NullTime{Time: endDate, Valid: true},
+			NotificationInterval: &notificationInterval,
+			Description:          sql.NullString{String: description, Valid: true},
+			OwnerID:              sql.NullInt64{Int64: ownerID, Valid: true},
 		}
 	)
 
@@ -89,7 +105,7 @@ func TestImplementation_UpdateEvent(t *testing.T) {
 			err:  nil,
 			eventRepositoryMock: func(mc *minimock.Controller) repository.EventRepository {
 				mock := repoMocks.NewEventRepositoryMock(mc)
-				mock.UpdateEventMock.Expect(ctx, eventID, updateEventInfoRepoReq).Return(nil)
+				mock.UpdateEventMock.Expect(ctx, ID, updateEventInfoRepoReq).Return(nil)
 				return mock
 			},
 		},
@@ -127,7 +143,7 @@ func TestImplementation_UpdateEvent(t *testing.T) {
 			err:  repoErr,
 			eventRepositoryMock: func(mc *minimock.Controller) repository.EventRepository {
 				mock := repoMocks.NewEventRepositoryMock(mc)
-				mock.UpdateEventMock.Expect(ctx, eventID, updateEventInfoRepoReq).Return(repoErr)
+				mock.UpdateEventMock.Expect(ctx, ID, updateEventInfoRepoReq).Return(repoErr)
 				return mock
 			},
 		},
@@ -136,12 +152,12 @@ func TestImplementation_UpdateEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := newMockEventV1(Implementation{
-				eventService: event.NewService(tt.eventRepositoryMock(mc)),
+				eventService: event.NewService(logger.New(), tt.eventRepositoryMock(mc)),
 			})
 
 			res, err := api.UpdateEvent(tt.args.ctx, tt.args.req)
-			assert.Equal(t, tt.want, res)
-			assert.Equal(t, tt.err, err)
+			require.Equal(t, tt.want, res)
+			require.Equal(t, tt.err, err)
 		})
 	}
 }

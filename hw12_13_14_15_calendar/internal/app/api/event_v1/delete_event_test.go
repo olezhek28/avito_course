@@ -11,8 +11,9 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	repoMocks "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/mocks"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -97,12 +98,12 @@ func TestImplementation_DeleteEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := newMockEventV1(Implementation{
-				eventService: event.NewService(tt.eventRepositoryMock(mc)),
+				eventService: event.NewService(logger.New(), tt.eventRepositoryMock(mc)),
 			})
 
 			res, err := api.DeleteEvent(tt.args.ctx, tt.args.req)
-			assert.Equal(t, tt.want, res)
-			assert.Equal(t, tt.err, err)
+			require.Equal(t, tt.want, res)
+			require.Equal(t, tt.err, err)
 		})
 	}
 }
