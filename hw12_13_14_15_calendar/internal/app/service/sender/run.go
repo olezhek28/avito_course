@@ -18,6 +18,7 @@ func (s *Service) Run() error {
 		err = s.receiveEvents(msg)
 		if err != nil {
 			fmt.Printf("failed to receive events: %s/n", err.Error())
+			//msg.Ack(false)
 			continue
 		}
 
@@ -40,17 +41,17 @@ func (s *Service) receiveEvents(msg amqp.Delivery) error {
 		fmt.Printf("Event:  %d\n", event.ID)
 		fmt.Printf(
 			"Title: %s\n"+
-				"StartDate: %s\n"+
-				"EndDate: :%s\n"+
-				"NotificationIntervalMin: %d\n"+
+				"StartDate: %v\n"+
+				"EndDate: :%v\n"+
+				"NotificationInterval: %v\n"+
 				"Description: %s\n"+
 				"OwnerID: %d\n"+
-				"CreatedAt: %s\n"+
-				"UpdatedAt: %s\n\n",
+				"CreatedAt: %v\n"+
+				"UpdatedAt: %v\n\n",
 			event.EventInfo.Title,
 			event.EventInfo.StartDate,
 			event.EventInfo.EndDate,
-			event.EventInfo.NotificationIntervalMin.Int64,
+			event.EventInfo.NotificationInterval,
 			event.EventInfo.Description.String,
 			event.EventInfo.OwnerID,
 			event.CreatedAt,

@@ -10,7 +10,7 @@
   },
 
   "scheduler": {
-    "check_period_sec": 10
+    "check_period_sec": 60
   }
 }
 
