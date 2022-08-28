@@ -120,7 +120,7 @@ func (a *App) initGRPCServer(_ context.Context) error {
 func (a *App) initPublicHTTPHandlers(ctx context.Context) error {
 	a.mux = runtime.NewServeMux()
 
-	// nolint
+	//nolint:staticcheck
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	err := desc.RegisterEventServiceV1HandlerFromEndpoint(ctx, a.mux, grpcPort, opts)

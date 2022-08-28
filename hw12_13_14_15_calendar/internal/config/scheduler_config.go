@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -28,7 +28,7 @@ type SchedulerConfig struct {
 
 // NewSchedulerConfig ...
 func NewSchedulerConfig(path string) (*SchedulerConfig, error) {
-	file, err := ioutil.ReadFile(path)
+	file, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

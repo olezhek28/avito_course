@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 )
 
 // RabbitConsumer ...
@@ -18,7 +18,7 @@ type SenderConfig struct {
 
 // NewSenderConfig ...
 func NewSenderConfig(path string) (*SenderConfig, error) {
-	file, err := ioutil.ReadFile(path)
+	file, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
