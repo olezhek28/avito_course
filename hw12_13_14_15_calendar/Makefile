@@ -10,6 +10,8 @@ LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%d
 LOCAL_MIGRATION_DIR=./migrations
 LOCAL_MIGRATION_DSN="host=localhost port=54321 dbname=event-service user=event-service-user password=event-service-password sslmode=disable"
 
+build: build-calendar build-scheduler build-sender
+
 build-calendar:
 	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
@@ -19,17 +21,10 @@ build-scheduler:
 build-sender:
 	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
 
-run: build-calendar
+run: build
 	$(BIN_CALENDAR) -config ./configs/calendar_config.json
-
-build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
-
-run-img: build-img
-	docker run $(DOCKER_IMG)
+	$(BIN_SCHEDULER) -config ./configs/scheduler_config.json
+	$(BIN_SENDER) -config ./configs/sender_config.json
 
 test:
 	go test -race ./internal/... ./pkg/...
