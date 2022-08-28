@@ -5,7 +5,7 @@ import (
 
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
+	pgxV4 "github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -36,11 +36,11 @@ func (db *DB) ExecContext(ctx context.Context, q Query, args ...interface{}) (pg
 }
 
 // QueryContext is a wrapped method pgxpool.Query ...
-func (db *DB) QueryContext(ctx context.Context, q Query, args ...interface{}) (pgx.Rows, error) {
+func (db *DB) QueryContext(ctx context.Context, q Query, args ...interface{}) (pgxV4.Rows, error) {
 	return db.pool.Query(ctx, q.QueryRaw, args...)
 }
 
 // QueryRowContext is a wrapped method pgxpool.QueryRow ...
-func (db *DB) QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgx.Row {
+func (db *DB) QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgxV4.Row {
 	return db.pool.QueryRow(ctx, q.QueryRaw, args...)
 }
