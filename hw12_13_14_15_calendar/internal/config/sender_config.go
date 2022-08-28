@@ -13,6 +13,7 @@ type RabbitConsumer struct {
 
 // SenderConfig ...
 type SenderConfig struct {
+	Logger         *LoggerConf     `json:"logger"`
 	RabbitConsumer *RabbitConsumer `json:"rabbit_consumer"`
 }
 
@@ -30,6 +31,11 @@ func NewSenderConfig(path string) (*SenderConfig, error) {
 	}
 
 	return config, nil
+}
+
+// GetLoggerConfig ...
+func (c *SenderConfig) GetLoggerConfig() *LoggerConf {
+	return c.Logger
 }
 
 // GetRabbitConsumerConfig ...

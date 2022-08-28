@@ -9,6 +9,7 @@ import (
 	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db_repository"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/scheduler"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/rabbit"
 )
@@ -18,6 +19,7 @@ type serviceProvider struct {
 	rabbitProducer rabbit.Producer
 	configPath     string
 	config         *config.SchedulerConfig
+	logger         *logger.Logger
 
 	// repositories
 	eventRepository repository.EventRepository
@@ -64,6 +66,14 @@ func (s *serviceProvider) GetConfig() *config.SchedulerConfig {
 	return s.config
 }
 
+func (s *serviceProvider) GetLogger() *logger.Logger {
+	if s.logger == nil {
+		s.logger = logger.New(s.GetConfig().GetLoggerConfig())
+	}
+
+	return s.logger
+}
+
 // GetRabbitProducer ...
 func (s *serviceProvider) GetRabbitProducer() rabbit.Producer {
 	if s.rabbitProducer == nil {
@@ -90,6 +100,7 @@ func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.Eve
 func (s *serviceProvider) GetSchedulerService(ctx context.Context) *scheduler.Service {
 	if s.schedulerService == nil {
 		s.schedulerService = scheduler.NewService(
+			s.GetLogger(),
 			s.GetRabbitProducer(),
 			s.GetEventRepository(ctx),
 			time.Duration(s.GetConfig().GetSchedulerConfig().CheckPeriodSec)*time.Second,

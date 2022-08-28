@@ -5,6 +5,7 @@ import (
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/sender"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/rabbit"
 )
 
@@ -12,6 +13,7 @@ type serviceProvider struct {
 	rabbitConsumer rabbit.Consumer
 	configPath     string
 	config         *config.SenderConfig
+	logger         *logger.Logger
 
 	senderService *sender.Service
 }
@@ -20,6 +22,14 @@ func newServiceProvider(configPath string) *serviceProvider {
 	return &serviceProvider{
 		configPath: configPath,
 	}
+}
+
+func (s *serviceProvider) GetLogger() *logger.Logger {
+	if s.logger == nil {
+		s.logger = logger.New(s.GetConfig().GetLoggerConfig())
+	}
+
+	return s.logger
 }
 
 // GetRabbitConsumer ...
@@ -52,7 +62,7 @@ func (s *serviceProvider) GetConfig() *config.SenderConfig {
 // GetSenderService ...
 func (s *serviceProvider) GetSenderService() *sender.Service {
 	if s.senderService == nil {
-		s.senderService = sender.NewService(s.GetRabbitConsumer())
+		s.senderService = sender.NewService(s.GetLogger(), s.GetRabbitConsumer())
 	}
 
 	return s.senderService

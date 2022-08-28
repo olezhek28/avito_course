@@ -7,20 +7,17 @@ import (
 
 // Service ...
 type Service struct {
-	logger *logger.Logger
-
+	logger          *logger.Logger
 	eventRepository repository.EventRepository
 }
 
 // NewService ...
 func NewService(
 	logger *logger.Logger,
-
 	eventRepository repository.EventRepository,
 ) *Service {
 	return &Service{
-		logger: logger,
-
+		logger:          logger,
 		eventRepository: eventRepository,
 	}
 }

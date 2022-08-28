@@ -21,6 +21,7 @@ type Scheduler struct {
 
 // SchedulerConfig ...
 type SchedulerConfig struct {
+	Logger         *LoggerConf     `json:"logger"`
 	RabbitProducer *RabbitProducer `json:"rabbit_producer"`
 	Scheduler      *Scheduler      `json:"scheduler"`
 	DB             *DB             `json:"db"`
@@ -40,6 +41,11 @@ func NewSchedulerConfig(path string) (*SchedulerConfig, error) {
 	}
 
 	return config, nil
+}
+
+// GetLoggerConfig ...
+func (c *SchedulerConfig) GetLoggerConfig() *LoggerConf {
+	return c.Logger
 }
 
 // GetRabbitProducerConfig ...

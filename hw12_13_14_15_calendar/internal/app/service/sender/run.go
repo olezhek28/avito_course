@@ -2,7 +2,6 @@ package sender
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 	"github.com/streadway/amqp"
@@ -18,7 +17,7 @@ func (s *Service) Run() error {
 	for msg := range msgChan {
 		err = s.receiveEvents(msg)
 		if err != nil {
-			fmt.Printf("failed to receive events: %s/n", err.Error())
+			s.logger.Error("failed to receive events: %s/n", err.Error())
 			continue
 		}
 
@@ -29,7 +28,7 @@ func (s *Service) Run() error {
 }
 
 func (s *Service) receiveEvents(msg amqp.Delivery) error {
-	fmt.Printf("Received a message: %s\n", msg.Body)
+	s.logger.Info("Received a message: %s\n", msg.Body)
 
 	var events []*model.Event
 	err := json.Unmarshal(msg.Body, &events)
@@ -38,8 +37,8 @@ func (s *Service) receiveEvents(msg amqp.Delivery) error {
 	}
 
 	for _, event := range events {
-		fmt.Printf("Event:  %d\n", event.ID)
-		fmt.Printf(
+		s.logger.Info("Event:  %d\n", event.ID)
+		s.logger.Info(
 			"Title: %s\n"+
 				"StartDate: %v\n"+
 				"EndDate: :%v\n"+

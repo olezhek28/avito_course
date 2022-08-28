@@ -15,7 +15,7 @@ const (
 
 // LoggerConf ...
 type LoggerConf struct {
-	Level string `json:"level"`
+	ShowTime bool `json:"show_time"`
 }
 
 // SourceConf ...
@@ -50,6 +50,16 @@ func NewCalendarConfig(path string) (*CalendarConfig, error) {
 	}
 
 	return config, nil
+}
+
+// GetLoggerConfig ...
+func (c *CalendarConfig) GetLoggerConfig() *LoggerConf {
+	return c.Logger
+}
+
+// GetSourceConfig ...
+func (c *CalendarConfig) GetSourceConfig() *SourceConf {
+	return c.Source
 }
 
 // GetDBConfig ...

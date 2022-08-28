@@ -2,6 +2,10 @@
   "rabbit_consumer":{
     "dsn": "amqp://guest:guest@queue:5672/",
     "queue_name": "events"
+  },
+
+  "logger": {
+    "show_time": true
   }
 }
 

@@ -11,6 +11,10 @@
 
   "scheduler": {
     "check_period_sec": 60
+  },
+
+  "logger": {
+    "show_time": true
   }
 }
 

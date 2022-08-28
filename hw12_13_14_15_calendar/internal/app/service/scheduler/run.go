@@ -3,7 +3,6 @@ package scheduler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
@@ -24,21 +23,21 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ticker.C:
 			err := s.handleEvents(ctx)
 			if err != nil {
-				fmt.Printf("failed to handle events: %s", err.Error())
+				s.logger.Error("failed to handle events: %s", err.Error())
 			}
 		}
 	}
 }
 
 func (s *Service) handleEvents(ctx context.Context) error {
-	fmt.Printf("%v : Handle events start ...\n", time.Now())
+	s.logger.Info("%v : Handle events start ...\n", time.Now())
 
 	events, err := s.getEvents(ctx)
 	if err != nil {
 		return err
 	}
 	if len(events) == 0 {
-		fmt.Println("No events.")
+		s.logger.Info("No events.")
 		return nil
 	}
 
@@ -52,7 +51,7 @@ func (s *Service) handleEvents(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println("Handle events success ...")
+	s.logger.Info("Handle events success ...")
 	return nil
 }
 
@@ -60,7 +59,7 @@ func (s *Service) getEvents(ctx context.Context) ([]*model.Event, error) {
 	endDate := utils.RoundUpToMinutes(time.Now())
 	startDate := endDate.Add(-s.checkPeriod)
 
-	fmt.Printf("select events from %v to %v\n", startDate, endDate)
+	s.logger.Info("select events from %v to %v\n", startDate, endDate)
 
 	return s.eventRepository.GetEventListByDate(ctx, startDate, endDate)
 }

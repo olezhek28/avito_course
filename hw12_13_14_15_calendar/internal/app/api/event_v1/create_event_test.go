@@ -13,6 +13,7 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	repoMocks "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/mocks"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 	"github.com/stretchr/testify/require"
@@ -39,6 +40,9 @@ func TestImplementation_CreateEvent(t *testing.T) {
 		notificationInterval = time.Duration(gofakeit.Number(1, 100))
 		description          = gofakeit.Phrase()
 		ownerID              = gofakeit.Int64()
+		loggerConf           = &config.LoggerConf{
+			ShowTime: gofakeit.Bool(),
+		}
 
 		repoErr = fmt.Errorf(gofakeit.Phrase())
 
@@ -116,7 +120,7 @@ func TestImplementation_CreateEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := newMockEventV1(Implementation{
-				eventService: event.NewService(logger.New(), tt.eventRepositoryMock(mc)),
+				eventService: event.NewService(logger.New(loggerConf), tt.eventRepositoryMock(mc)),
 			})
 
 			res, err := api.CreateEvent(tt.args.ctx, tt.args.req)

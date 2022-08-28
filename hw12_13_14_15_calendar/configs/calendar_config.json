@@ -9,7 +9,7 @@
   },
 
   "logger": {
-    "level": "info"
+    "show_time": true
   }
 }
 

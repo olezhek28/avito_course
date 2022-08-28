@@ -67,7 +67,7 @@ func (s *serviceProvider) GetConfig() *config.CalendarConfig {
 
 func (s *serviceProvider) GetLogger() *logger.Logger {
 	if s.logger == nil {
-		s.logger = logger.New()
+		s.logger = logger.New(s.GetConfig().GetLoggerConfig())
 	}
 
 	return s.logger
@@ -76,9 +76,9 @@ func (s *serviceProvider) GetLogger() *logger.Logger {
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
-		if s.GetConfig().Source.SourceType == model.DBSource {
+		if s.GetConfig().GetSourceConfig().SourceType == model.DBSource {
 			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
-		} else if s.GetConfig().Source.SourceType == model.MemorySource {
+		} else if s.GetConfig().GetSourceConfig().SourceType == model.MemorySource {
 			s.eventRepository = memoryRepository.NewEventRepository()
 		}
 	}
@@ -91,7 +91,6 @@ func (s *serviceProvider) GetEventService(ctx context.Context) *event.Service {
 	if s.eventService == nil {
 		s.eventService = event.NewService(
 			s.GetLogger(),
-
 			s.GetEventRepository(ctx),
 		)
 	}

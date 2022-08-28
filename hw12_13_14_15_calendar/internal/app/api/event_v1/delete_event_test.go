@@ -11,6 +11,7 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	repoMocks "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/mocks"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
+	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 	"github.com/stretchr/testify/require"
@@ -36,6 +37,9 @@ func TestImplementation_DeleteEvent(t *testing.T) {
 
 		repoErr        = fmt.Errorf(gofakeit.Phrase())
 		invalidIDError = status.Error(codes.InvalidArgument, err.ErrInvalidEventID)
+		loggerConf     = &config.LoggerConf{
+			ShowTime: gofakeit.Bool(),
+		}
 
 		req = &desc.DeleteEventRequest{
 			Id: &wrapperspb.Int64Value{Value: eventID},
@@ -98,7 +102,7 @@ func TestImplementation_DeleteEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := newMockEventV1(Implementation{
-				eventService: event.NewService(logger.New(), tt.eventRepositoryMock(mc)),
+				eventService: event.NewService(logger.New(loggerConf), tt.eventRepositoryMock(mc)),
 			})
 
 			res, err := api.DeleteEvent(tt.args.ctx, tt.args.req)
