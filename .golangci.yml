@@ -8,7 +8,8 @@ linters-settings:
   govet:
     check-shadowing: true
   revive:
-    min-confidence: 0
+    severity: warning
+    confidence: 0.8
   dupl:
     threshold: 100
   goconst:
@@ -33,6 +34,7 @@ issues:
     - G104
     - G102
     - G304
+    - G114
     - don't use an underscore in package name
 
 linters:
