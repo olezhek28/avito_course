@@ -15,11 +15,10 @@ import (
 )
 
 type serviceProvider struct {
-	db             db.Client
-	configPath     string
-	config         *config.CalendarConfig
-	logger         *logger.Logger
-	dataSourceType model.SourceType
+	db         db.Client
+	configPath string
+	config     *config.CalendarConfig
+	logger     *logger.Logger
 
 	// repositories
 	eventRepository repository.EventRepository
@@ -77,9 +76,9 @@ func (s *serviceProvider) GetLogger() *logger.Logger {
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
-		if s.dataSourceType == model.DbSource {
+		if s.GetConfig().Source.SourceType == model.DbSource {
 			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
-		} else if s.dataSourceType == model.MemorySource {
+		} else if s.GetConfig().Source.SourceType == model.MemorySource {
 			s.eventRepository = memoryRepository.NewEventRepository()
 		}
 	}

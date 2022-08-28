@@ -12,6 +12,8 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/utils"
 )
 
+var currentID int64
+
 type eventRepository struct {
 	mu           sync.RWMutex
 	eventsByIDs  map[int64]*model.Event
@@ -20,7 +22,10 @@ type eventRepository struct {
 
 // NewEventRepository ...
 func NewEventRepository() repository.EventRepository {
-	return &eventRepository{}
+	return &eventRepository{
+		eventsByIDs:  make(map[int64]*model.Event),
+		eventsByDate: make(map[time.Time]map[int64]*model.Event),
+	}
 }
 
 // CreateEvent ...
@@ -28,11 +33,11 @@ func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventI
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	id := int64(len(r.eventsByIDs)) + 1
+	currentID++
 	now := time.Now()
 
-	r.eventsByIDs[id] = &model.Event{
-		ID:        id,
+	r.eventsByIDs[currentID] = &model.Event{
+		ID:        currentID,
 		EventInfo: eventInfo,
 		CreatedAt: sql.NullTime{
 			Time:  now,
@@ -45,15 +50,63 @@ func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventI
 		r.eventsByDate[beginDay] = make(map[int64]*model.Event)
 	}
 
-	r.eventsByDate[beginDay][id] = r.eventsByIDs[id]
+	r.eventsByDate[beginDay][currentID] = r.eventsByIDs[currentID]
 
 	return nil
 }
 
 // UpdateEvent ...
 func (r *eventRepository) UpdateEvent(_ context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) error {
-	// TODO implement me
-	panic("implement me")
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	oldBeginDay := utils.BeginningOfDay(r.eventsByIDs[eventID].EventInfo.StartDate.Time)
+	updEvent := r.eventsByIDs[eventID]
+
+	if updateEventInfo.Title.Valid {
+		updEvent.EventInfo.Title = updateEventInfo.Title.String
+	}
+	if updateEventInfo.NotificationDate.Valid {
+		updEvent.EventInfo.NotificationDate = updateEventInfo.NotificationDate
+	}
+	if updateEventInfo.StartDate.Valid {
+		updEvent.EventInfo.StartDate = updateEventInfo.StartDate
+	}
+	if updateEventInfo.EndDate.Valid {
+		updEvent.EventInfo.EndDate = updateEventInfo.EndDate
+	}
+	if updateEventInfo.NotificationInterval != nil {
+		updEvent.EventInfo.NotificationInterval = updateEventInfo.NotificationInterval
+	}
+	if updateEventInfo.Description.Valid {
+		updEvent.EventInfo.Description = updateEventInfo.Description
+	}
+	if updateEventInfo.OwnerID.Valid {
+		updEvent.EventInfo.OwnerID = updateEventInfo.OwnerID.Int64
+	}
+
+	updEvent.UpdatedAt = sql.NullTime{
+		Time:  time.Now(),
+		Valid: true,
+	}
+
+	beginDay := utils.BeginningOfDay(updEvent.EventInfo.StartDate.Time)
+	if utils.BeginningOfDay(updEvent.EventInfo.StartDate.Time) != oldBeginDay {
+		delete(r.eventsByDate[oldBeginDay], eventID)
+		if len(r.eventsByDate[oldBeginDay]) == 0 {
+			delete(r.eventsByDate, oldBeginDay)
+		}
+
+		if _, found := r.eventsByDate[beginDay]; !found {
+			r.eventsByDate[beginDay] = make(map[int64]*model.Event)
+		}
+
+		r.eventsByDate[beginDay][eventID] = updEvent
+	}
+
+	r.eventsByIDs[eventID] = updEvent
+
+	return nil
 }
 
 // DeleteEvent ...
@@ -87,11 +140,11 @@ func (r *eventRepository) GetEventListForWeek(_ context.Context, weekStart time.
 	defer r.mu.RUnlock()
 
 	beginWeek := utils.BeginningOfDay(weekStart)
-	endWeek := weekStart.AddDate(0, 0, utils.DaysInWeek)
+	endWeek := beginWeek.AddDate(0, 0, utils.DaysInWeek)
 
 	var events []*model.Event
 	for date, event := range r.eventsByDate {
-		if date.After(beginWeek) && date.Before(endWeek) {
+		if (date.After(beginWeek) && date.Before(endWeek)) || date.Equal(beginWeek) || date.Equal(endWeek) {
 			events = append(events, utils.MapToSlice(event)...)
 		}
 	}
@@ -105,11 +158,11 @@ func (r *eventRepository) GetEventListForMonth(_ context.Context, monthStart tim
 	defer r.mu.RUnlock()
 
 	beginMonth := utils.BeginningOfDay(monthStart)
-	endMonth := monthStart.AddDate(0, 0, utils.DaysInMonth)
+	endMonth := beginMonth.AddDate(0, 0, utils.DaysInMonth)
 
 	var events []*model.Event
 	for date, event := range r.eventsByDate {
-		if date.After(beginMonth) && date.Before(endMonth) {
+		if date.After(beginMonth) && date.Before(endMonth) || date.Equal(beginMonth) || date.Equal(endMonth) {
 			events = append(events, utils.MapToSlice(event)...)
 		}
 	}
