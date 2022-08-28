@@ -14,7 +14,7 @@ build-calendar:
 	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 build-scheduler:
-	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/sheduler
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/scheduler
 
 build-sender:
 	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender

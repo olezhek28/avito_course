@@ -3,12 +3,31 @@ version: '3.8'
 volumes:
   postgres_volume:
 
+networks:
+  app_net:
+    driver: bridge
+
 services:
+  db:
+    container_name: db
+    image: postgres:14-alpine3.15
+    environment:
+      - "POSTGRES_DB=event-service"
+      - "POSTGRES_USER=event-service-user"
+      - "POSTGRES_PASSWORD=event-service-password"
+    ports:
+      - "54321:5432"
+    networks:
+      - app_net
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+
   calendar:
     container_name: calendar
     build:
       context: .
       dockerfile: ./deploy/calendar/Dockerfile
+    restart: on-failure
     environment:
       - "DB_NAME=${DB_NAME}"
       - "DB_USERNAME=${DB_USERNAME}"
@@ -18,19 +37,11 @@ services:
       - "7000:7000"
     depends_on:
       - db
+    networks:
+      - app_net
 
-  db:
-    image: postgres:14-alpine3.15
-    environment:
-      - "POSTGRES_DB=event-service"
-      - "POSTGRES_USER=event-service-user"
-      - "POSTGRES_PASSWORD=event-service-password"
-    ports:
-      - "54321:5432"
-    volumes:
-      - postgres_volume:/var/lib/postgresql/data
-
-  goose:
+  migrator:
+    container_name: migrator
     build:
       context: .
       dockerfile: ./deploy/migrations/Dockerfile
@@ -39,13 +50,48 @@ services:
       - "DB_HOST=${DB_HOST}"
     depends_on:
       - db
+    networks:
+      - app_net
 
-  rabbitmq:
+  queue:
+    container_name: queue
     image: rabbitmq:3-management-alpine
+    networks:
+      - app_net
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
-#networks:
-#  calendar_net:
-#    driver: bridge
+  scheduler:
+    container_name: scheduler
+    build:
+      context: .
+      dockerfile: ./deploy/scheduler/Dockerfile
+    restart: on-failure
+    environment:
+      - "DB_NAME=${DB_NAME}"
+      - "DB_USERNAME=${DB_USERNAME}"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+      - "DB_HOST=${DB_HOST}"
+    depends_on:
+      - db
+      - queue
+    networks:
+      - app_net
+
+  sender:
+    container_name: sender
+    build:
+      context: .
+      dockerfile: ./deploy/sender/Dockerfile
+    restart: on-failure
+    environment:
+      - "DB_NAME=${DB_NAME}"
+      - "DB_USERNAME=${DB_USERNAME}"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+      - "DB_HOST=${DB_HOST}"
+    depends_on:
+      - db
+      - queue
+    networks:
+      - app_net

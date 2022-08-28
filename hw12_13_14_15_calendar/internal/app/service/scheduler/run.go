@@ -59,6 +59,8 @@ func (s *Service) getEvents(ctx context.Context) ([]*model.Event, error) {
 	endDate := utils.RoundUpToMinutes(time.Now())
 	startDate := endDate.Add(-s.checkPeriod)
 
+	fmt.Printf("select events from %v to %v\n", startDate, endDate)
+
 	return s.eventRepository.GetEventListByDate(ctx, startDate, endDate)
 }
 

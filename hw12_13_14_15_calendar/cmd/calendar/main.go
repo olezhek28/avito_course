@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"time"
 
 	calendarApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/calendar_app"
 )
@@ -12,6 +13,7 @@ var pathConfig string
 
 func init() {
 	flag.StringVar(&pathConfig, "config", "./calendar_config.json", "Path to configuration file")
+	time.Local = time.UTC
 }
 
 func main() {

@@ -1,6 +1,6 @@
 {
   "rabbit_consumer":{
-    "dsn": "amqp://guest:guest@rabbitmq:5672/",
+    "dsn": "amqp://guest:guest@queue:5672/",
     "queue_name": "events"
   }
 }
