@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	calendarApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/calendar_app"
+	calendarApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/calendar"
 )
 
 var pathConfig string

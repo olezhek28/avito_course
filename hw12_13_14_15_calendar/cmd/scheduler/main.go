@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	schedulerApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/scheduler_app"
+	schedulerApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/scheduler"
 )
 
 var pathConfig string

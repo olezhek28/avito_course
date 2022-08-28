@@ -16,6 +16,7 @@ type eventRepository struct {
 	db db.Client
 }
 
+// NewEventRepository ...
 func NewEventRepository(db db.Client) repository.EventRepository {
 	return &eventRepository{
 		db: db,
@@ -26,8 +27,24 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
 	builder := sq.Insert(table.Event).
 		PlaceholderFormat(sq.Dollar).
-		Columns("title", "notification_date", "start_date", "end_date", "notification_interval", "description", "owner_id").
-		Values(eventInfo.Title, eventInfo.NotificationDate, eventInfo.StartDate, eventInfo.EndDate, eventInfo.NotificationInterval.Nanoseconds(), eventInfo.Description, eventInfo.OwnerID)
+		Columns(
+			"title",
+			"notification_date",
+			"start_date",
+			"end_date",
+			"notification_interval",
+			"description",
+			"owner_id",
+		).
+		Values(
+			eventInfo.Title,
+			eventInfo.NotificationDate,
+			eventInfo.StartDate,
+			eventInfo.EndDate,
+			eventInfo.NotificationInterval.Nanoseconds(),
+			eventInfo.Description,
+			eventInfo.OwnerID,
+		)
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -111,65 +128,37 @@ func (r *eventRepository) DeleteEvent(ctx context.Context, eventID int64) error 
 
 // GetEventListForDay ...
 func (r *eventRepository) GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
-		PlaceholderFormat(sq.Dollar).
-		From(table.Event).
-		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(date)}).
-		Where(sq.LtOrEq{"start_date": utils.EndOfDay(date)})
-
-	query, v, err := builder.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	q := db.Query{
-		Name:     "repository.GetEventListForDay",
-		QueryRaw: query,
-	}
-
-	var res []*model.Event
-	err = r.db.DB().SelectContext(ctx, &res, q, v...)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return r.getEventListByRange(ctx,
+		utils.BeginningOfDay(date), utils.EndOfDay(date))
 }
 
 // GetEventListForWeek ...
 func (r *eventRepository) GetEventListForWeek(ctx context.Context, weekStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
-		PlaceholderFormat(sq.Dollar).
-		From(table.Event).
-		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(weekStart)}).
-		Where(sq.LtOrEq{"start_date": utils.EndOfDay(weekStart).AddDate(0, 0, utils.DaysInWeek)})
-
-	query, v, err := builder.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	q := db.Query{
-		Name:     "repository.GetEventListForWeek",
-		QueryRaw: query,
-	}
-
-	var res []*model.Event
-	err = r.db.DB().SelectContext(ctx, &res, q, v...)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return r.getEventListByRange(ctx,
+		utils.BeginningOfDay(weekStart), utils.EndOfDay(weekStart).AddDate(0, 0, utils.DaysInWeek))
 }
 
 // GetEventListForMonth ...
 func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
+	return r.getEventListByRange(ctx,
+		utils.BeginningOfDay(monthStart), utils.EndOfDay(monthStart).AddDate(0, 0, utils.DaysInMonth))
+}
+
+func (r *eventRepository) getEventListByRange(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
+	builder := sq.Select(
+		"id, " +
+			"title, " +
+			"start_date, " +
+			"end_date, " +
+			"notification_interval, " +
+			"description, " +
+			"owner_id, " +
+			"created_at, " +
+			"updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
-		Where(sq.GtOrEq{"start_date": utils.BeginningOfDay(monthStart)}).
-		Where(sq.LtOrEq{"start_date": utils.EndOfDay(monthStart).AddDate(0, 0, utils.DaysInMonth)})
+		Where(sq.GtOrEq{"start_date": startDate}).
+		Where(sq.LtOrEq{"start_date": endDate})
 
 	query, v, err := builder.ToSql()
 	if err != nil {
@@ -177,7 +166,7 @@ func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart t
 	}
 
 	q := db.Query{
-		Name:     "repository.GetEventListForWeek",
+		Name:     "repository.getEventListByRange",
 		QueryRaw: query,
 	}
 
@@ -192,7 +181,17 @@ func (r *eventRepository) GetEventListForMonth(ctx context.Context, monthStart t
 
 // GetEventListByDate ...
 func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
-	builder := sq.Select("id, title, notification_date, start_date, end_date, notification_interval, description, owner_id, created_at, updated_at").
+	builder := sq.Select(
+		"id, " +
+			"title, " +
+			"notification_date, " +
+			"start_date, " +
+			"end_date, " +
+			"notification_interval, " +
+			"description, " +
+			"owner_id, " +
+			"created_at, " +
+			"updated_at").
 		PlaceholderFormat(sq.Dollar).
 		From(table.Event).
 		Where(sq.Or{

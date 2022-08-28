@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	senderApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/sender_app"
+	senderApp "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/sender"
 )
 
 var pathConfig string
@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("Can't create app: %s", err.Error())
 	}
 
-	err = a.Run(ctx)
+	err = a.Run()
 	if err != nil {
 		log.Fatalf("Can't run app: %s", err.Error())
 	}

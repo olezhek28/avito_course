@@ -8,6 +8,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Run ...
 func (s *Service) Run() error {
 	msgChan, err := s.rabbitConsumer.Consume()
 	if err != nil {
@@ -18,7 +19,6 @@ func (s *Service) Run() error {
 		err = s.receiveEvents(msg)
 		if err != nil {
 			fmt.Printf("failed to receive events: %s/n", err.Error())
-			//msg.Ack(false)
 			continue
 		}
 
@@ -57,7 +57,6 @@ func (s *Service) receiveEvents(msg amqp.Delivery) error {
 			event.CreatedAt,
 			event.UpdatedAt,
 		)
-
 	}
 
 	return nil

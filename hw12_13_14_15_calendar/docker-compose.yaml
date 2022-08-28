@@ -9,7 +9,7 @@ networks:
 
 services:
   db:
-    container_name: db
+    container_name: db_repository
     image: postgres:14-alpine3.15
     environment:
       - "POSTGRES_DB=event-service"

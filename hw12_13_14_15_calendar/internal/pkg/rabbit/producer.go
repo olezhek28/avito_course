@@ -30,7 +30,7 @@ type producer struct {
 
 // NewProducer ...
 func NewProducer(config *config.RabbitProducer) (Producer, error) {
-	var closeFuncs []io.Closer
+	closeFuncs := make([]io.Closer, 0, 2)
 
 	conn, err := amqp.Dial(config.DSN)
 	if err != nil {
@@ -61,6 +61,7 @@ func NewProducer(config *config.RabbitProducer) (Producer, error) {
 		channel:    ch,
 		queue:      &q,
 		queueName:  config.QueueName,
+		closeFuncs: closeFuncs,
 	}, nil
 }
 

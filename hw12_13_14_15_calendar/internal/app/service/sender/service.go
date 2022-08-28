@@ -2,6 +2,7 @@ package sender
 
 import "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/rabbit"
 
+// Service ...
 type Service struct {
 	rabbitConsumer rabbit.Consumer
 }

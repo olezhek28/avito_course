@@ -10,6 +10,7 @@ import (
 
 const (
 	dbPassEscSeq = "{password}"
+	password     = "event-service-password"
 )
 
 // LoggerConf ...
@@ -51,10 +52,8 @@ func NewCalendarConfig(path string) (*CalendarConfig, error) {
 	return config, nil
 }
 
-// GetDbConfig ...
-func (c *CalendarConfig) GetDbConfig() (*pgxpool.Config, error) {
-	password := "event-service-password"
-
+// GetDBConfig ...
+func (c *CalendarConfig) GetDBConfig() (*pgxpool.Config, error) {
 	dbDsn := strings.ReplaceAll(c.DB.DSN, dbPassEscSeq, password)
 
 	poolConfig, err := pgxpool.ParseConfig(dbDsn)

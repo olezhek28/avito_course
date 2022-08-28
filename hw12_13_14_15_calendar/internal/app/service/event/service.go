@@ -5,6 +5,7 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
 )
 
+// Service ...
 type Service struct {
 	logger *logger.Logger
 
@@ -19,7 +20,7 @@ func NewService(
 ) *Service {
 	return &Service{
 		logger: logger,
-		
+
 		eventRepository: eventRepository,
 	}
 }

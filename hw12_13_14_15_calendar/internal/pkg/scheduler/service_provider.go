@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
-	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db"
+	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db_repository"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/scheduler"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
@@ -35,7 +35,7 @@ func newServiceProvider(configPath string) *serviceProvider {
 // GetDB ...
 func (s *serviceProvider) GetDB(ctx context.Context) db.Client {
 	if s.db == nil {
-		cfg, err := s.GetConfig().GetDbConfig()
+		cfg, err := s.GetConfig().GetDBConfig()
 		if err != nil {
 			log.Fatalf("failed to get db config: %s", err.Error())
 		}

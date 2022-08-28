@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// App ...
 type App struct {
 	serviceProvider *serviceProvider
 
@@ -22,15 +23,16 @@ func NewApp(ctx context.Context, pathConfig string) (*App, error) {
 	return a, err
 }
 
+// Run ...
 func (a *App) Run(ctx context.Context) error {
 	defer func() {
-		a.serviceProvider.rabbitConsumer.Close()
+		a.serviceProvider.rabbitProducer.Close()
 	}()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
-	err := a.runSenderService(wg)
+	err := a.runSchedulerService(ctx, wg)
 	if err != nil {
 		return err
 	}
@@ -59,15 +61,13 @@ func (a *App) initServiceProvider(_ context.Context) error {
 	return nil
 }
 
-func (a *App) runSenderService(wg *sync.WaitGroup) error {
+func (a *App) runSchedulerService(ctx context.Context, wg *sync.WaitGroup) error {
 	go func() {
 		defer wg.Done()
 
-		if err := a.serviceProvider.GetSenderService().Run(); err != nil {
-			log.Fatalf("failed to process sender service: %s", err.Error())
-		}
+		a.serviceProvider.GetSchedulerService(ctx).Run(ctx)
 	}()
 
-	log.Printf("Run sender service ...\n")
+	log.Printf("Run scheduler service ...\n")
 	return nil
 }

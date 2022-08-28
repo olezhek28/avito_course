@@ -1,6 +1,7 @@
 package model
 
+// DataSource ...
 const (
-	DbSource     = "db"
+	DBSource     = "db"
 	MemorySource = "memory"
 )

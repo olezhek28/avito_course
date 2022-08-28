@@ -14,6 +14,7 @@ type RabbitProducer struct {
 	QueueName string `json:"queue_name"`
 }
 
+// Scheduler ...
 type Scheduler struct {
 	CheckPeriodSec int64 `json:"check_period_sec"`
 }
@@ -51,10 +52,8 @@ func (c *SchedulerConfig) GetSchedulerConfig() *Scheduler {
 	return c.Scheduler
 }
 
-// GetDbConfig ...
-func (c *SchedulerConfig) GetDbConfig() (*pgxpool.Config, error) {
-	password := "event-service-password"
-
+// GetDBConfig ...
+func (c *SchedulerConfig) GetDBConfig() (*pgxpool.Config, error) {
 	dbDsn := strings.ReplaceAll(c.DB.DSN, dbPassEscSeq, password)
 
 	poolConfig, err := pgxpool.ParseConfig(dbDsn)

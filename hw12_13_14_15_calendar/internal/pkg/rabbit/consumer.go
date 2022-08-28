@@ -67,6 +67,7 @@ func NewConsumer(config *config.RabbitConsumer) (Consumer, error) {
 		channel:    ch,
 		queue:      &q,
 		queueName:  config.QueueName,
+		closeFuncs: closeFuncs,
 	}, nil
 }
 

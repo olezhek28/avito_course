@@ -6,7 +6,7 @@ import (
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 )
 
-// DT common values
+// DT common values ...
 const (
 	beginningOfDayHour   = 0
 	beginningOfDayMinute = 0
@@ -30,14 +30,16 @@ const (
 func BeginningOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 
-	return time.Date(y, m, d, beginningOfDayHour, beginningOfDayMinute, beginningOfDaySecond, beginningOfDaySecond, t.Location())
+	return time.Date(y, m, d,
+		beginningOfDayHour, beginningOfDayMinute, beginningOfDaySecond, beginningOfDaySecond, t.Location())
 }
 
 // EndOfDay returns the end of the day (23:59:59:99999) ...
 func EndOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
 
-	return time.Date(y, m, d, endOfDayHour, endOfDayMinute, endOfDaySecond, int(time.Second-time.Nanosecond), t.Location())
+	return time.Date(y, m, d,
+		endOfDayHour, endOfDayMinute, endOfDaySecond, int(time.Second-time.Nanosecond), t.Location())
 }
 
 // MapToSlice ...

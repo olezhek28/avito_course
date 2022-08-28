@@ -1,4 +1,4 @@
-package calendar_app
+package calendar
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
-	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db"
-	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory"
+	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db_repository"
+	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory_repository"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/event"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/logger"
@@ -36,7 +36,7 @@ func newServiceProvider(configPath string) *serviceProvider {
 // GetDB ...
 func (s *serviceProvider) GetDB(ctx context.Context) db.Client {
 	if s.db == nil {
-		cfg, err := s.GetConfig().GetDbConfig()
+		cfg, err := s.GetConfig().GetDBConfig()
 		if err != nil {
 			log.Fatalf("failed to get db config: %s", err.Error())
 		}
@@ -76,7 +76,7 @@ func (s *serviceProvider) GetLogger() *logger.Logger {
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
-		if s.GetConfig().Source.SourceType == model.DbSource {
+		if s.GetConfig().Source.SourceType == model.DBSource {
 			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
 		} else if s.GetConfig().Source.SourceType == model.MemorySource {
 			s.eventRepository = memoryRepository.NewEventRepository()

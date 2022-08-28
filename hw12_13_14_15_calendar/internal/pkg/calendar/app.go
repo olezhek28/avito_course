@@ -1,4 +1,4 @@
-package calendar_app
+package calendar
 
 import (
 	"context"
@@ -21,6 +21,7 @@ const (
 	grpcPort = ":7002"
 )
 
+// App ...
 type App struct {
 	eventImpl       *eventV1.Implementation
 	serviceProvider *serviceProvider
@@ -41,6 +42,7 @@ func NewApp(ctx context.Context, pathConfig string) (*App, error) {
 	return a, err
 }
 
+// Run ...
 func (a *App) Run() error {
 	defer func() {
 		a.serviceProvider.db.Close()
