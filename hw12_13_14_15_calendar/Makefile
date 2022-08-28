@@ -1,18 +1,26 @@
-BIN := "./bin/calendar"
+BIN_CALENDAR := "./bin/calendar"
+BIN_SCHEDULER := "./bin/scheduler"
+BIN_SENDER := "./bin/sender"
+
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-
 LOCAL_MIGRATION_DIR=./migrations
 LOCAL_MIGRATION_DSN="host=localhost port=54321 dbname=event-service user=event-service-user password=event-service-password sslmode=disable"
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/scheduler
+build-calendar:
+	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: build
-	$(BIN) -config ./configs/scheduler_config.json
+build-scheduler:
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/sheduler
+
+build-sender:
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
+
+run: build-calendar
+	$(BIN_CALENDAR) -config ./configs/calendar_config.json
 
 build-img:
 	docker build \
@@ -22,9 +30,6 @@ build-img:
 
 run-img: build-img
 	docker run $(DOCKER_IMG)
-
-version: build
-	$(BIN) version
 
 test:
 	go test -race ./internal/... ./pkg/...

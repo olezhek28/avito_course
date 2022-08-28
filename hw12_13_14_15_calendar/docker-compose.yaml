@@ -4,6 +4,21 @@ volumes:
   postgres_volume:
 
 services:
+  calendar:
+    container_name: calendar
+    build:
+      context: .
+      dockerfile: ./deploy/calendar/Dockerfile
+    environment:
+      - "DB_NAME=${DB_NAME}"
+      - "DB_USERNAME=${DB_USERNAME}"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+      - "DB_HOST=${DB_HOST}"
+    ports:
+      - "7000:7000"
+    depends_on:
+      - db
+
   db:
     image: postgres:14-alpine3.15
     environment:
@@ -15,17 +30,22 @@ services:
     volumes:
       - postgres_volume:/var/lib/postgresql/data
 
+  goose:
+    build:
+      context: .
+      dockerfile: ./deploy/migrations/Dockerfile
+    restart: on-failure
+    environment:
+      - "DB_HOST=${DB_HOST}"
+    depends_on:
+      - db
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    ports:
-      - 5672:5672
-      - 15672:15672
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-      - rabbitmq_net
 
-networks:
-  rabbitmq_net:
-    driver: bridge
+#networks:
+#  calendar_net:
+#    driver: bridge
