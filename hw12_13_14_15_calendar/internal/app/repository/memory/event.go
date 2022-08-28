@@ -172,12 +172,39 @@ func (r *eventRepository) GetEventListForMonth(_ context.Context, monthStart tim
 
 // GetEventListByDate ...
 func (r *eventRepository) GetEventListByDate(ctx context.Context, startDate time.Time, endDate time.Time) ([]*model.Event, error) {
-	// TODO implement me
-	panic("implement me")
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	startDate = utils.BeginningOfDay(startDate)
+	endDate = utils.BeginningOfDay(endDate.AddDate(0, 0, 1))
+
+	var events []*model.Event
+	for date := startDate; date.Before(endDate); date = date.AddDate(0, 0, 1) {
+		eventList, err := r.GetEventListForDay(ctx, date)
+		if err != nil {
+			return nil, err
+		}
+
+		events = append(events, eventList...)
+	}
+
+	return events, nil
 }
 
 // DeleteEventsBeforeDate ...
-func (r *eventRepository) DeleteEventsBeforeDate(ctx context.Context, date time.Time) error {
-	// TODO implement me
-	panic("implement me")
+func (r *eventRepository) DeleteEventsBeforeDate(_ context.Context, date time.Time) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for eventDate := range r.eventsByDate {
+		if eventDate.Before(date) {
+			for eventID := range r.eventsByDate[eventDate] {
+				delete(r.eventsByIDs, eventID)
+			}
+
+			delete(r.eventsByDate, eventDate)
+		}
+	}
+
+	return nil
 }

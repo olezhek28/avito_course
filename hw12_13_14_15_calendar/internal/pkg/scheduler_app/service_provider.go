@@ -5,10 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/model"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository"
 	dbRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/db"
-	memoryRepository "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/repository/memory"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/app/service/scheduler"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/config"
 	"github.com/olezhek28/avito_course/hw12_13_14_15_calendar/internal/pkg/db"
@@ -20,7 +18,6 @@ type serviceProvider struct {
 	rabbitProducer rabbit.Producer
 	configPath     string
 	config         *config.SchedulerConfig
-	dataSourceType model.SourceType
 
 	// repositories
 	eventRepository repository.EventRepository
@@ -83,11 +80,7 @@ func (s *serviceProvider) GetRabbitProducer() rabbit.Producer {
 // GetEventRepository ...
 func (s *serviceProvider) GetEventRepository(ctx context.Context) repository.EventRepository {
 	if s.eventRepository == nil {
-		if s.dataSourceType == model.DbSource {
-			s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
-		} else if s.dataSourceType == model.MemorySource {
-			s.eventRepository = memoryRepository.NewEventRepository()
-		}
+		s.eventRepository = dbRepository.NewEventRepository(s.GetDB(ctx))
 	}
 
 	return s.eventRepository
