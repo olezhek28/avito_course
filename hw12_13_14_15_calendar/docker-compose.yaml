@@ -35,6 +35,7 @@ services:
       - "DB_HOST=${DB_HOST}"
     ports:
       - "7000:7000"
+      - "7002:7002"
     depends_on:
       - db
     networks:
