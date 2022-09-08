@@ -28,7 +28,7 @@ run: build
 
 integration-tests:
 	docker-compose -f docker-compose-test.yaml up -d && \
-	sleep 2 && \
+	sleep 5 && \
 	ginkgo ./e2e && \
 	docker-compose -f docker-compose-test.yaml down -v
 

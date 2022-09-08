@@ -8,7 +8,6 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 	. "github.com/onsi/ginkgo/v2"
-	//. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -55,6 +54,7 @@ var _ = Describe("Calendar", func() {
 			OwnerId: gofakeit.Int64(),
 		}
 
+		//nolint:staticcheck
 		con, err := grpc.Dial(grpcHost, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("didn't connect: %s", err.Error())
