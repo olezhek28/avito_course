@@ -19,7 +19,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "properties": {}
+              "$ref": "#/definitions/eventCreateEventResponse"
             }
           },
           "default": {
@@ -251,6 +251,25 @@
           "$ref": "#/definitions/eventEventInfo"
         }
       }
+    },
+    "eventCreateEventResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/eventCreateEventResponseResult"
+        }
+      }
+    },
+    "eventCreateEventResponseResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "Идентификатор созданного события"
+        }
+      },
+      "title": "Результат выполнения реализации метода API CreateEvent"
     },
     "eventEvent": {
       "type": "object",

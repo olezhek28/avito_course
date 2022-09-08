@@ -19,7 +19,7 @@ import (
 type EventRepositoryMock struct {
 	t minimock.Tester
 
-	funcCreateEvent          func(ctx context.Context, eventInfo *model.EventInfo) (err error)
+	funcCreateEvent          func(ctx context.Context, eventInfo *model.EventInfo) (i1 int64, err error)
 	inspectFuncCreateEvent   func(ctx context.Context, eventInfo *model.EventInfo)
 	afterCreateEventCounter  uint64
 	beforeCreateEventCounter uint64
@@ -127,6 +127,7 @@ type EventRepositoryMockCreateEventParams struct {
 
 // EventRepositoryMockCreateEventResults contains results of the EventRepository.CreateEvent
 type EventRepositoryMockCreateEventResults struct {
+	i1  int64
 	err error
 }
 
@@ -162,7 +163,7 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Inspect(f func(ctx context
 }
 
 // Return sets up results that will be returned by EventRepository.CreateEvent
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) Return(err error) *EventRepositoryMock {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) Return(i1 int64, err error) *EventRepositoryMock {
 	if mmCreateEvent.mock.funcCreateEvent != nil {
 		mmCreateEvent.mock.t.Fatalf("EventRepositoryMock.CreateEvent mock is already set by Set")
 	}
@@ -170,12 +171,12 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) Return(err error) *EventRe
 	if mmCreateEvent.defaultExpectation == nil {
 		mmCreateEvent.defaultExpectation = &EventRepositoryMockCreateEventExpectation{mock: mmCreateEvent.mock}
 	}
-	mmCreateEvent.defaultExpectation.results = &EventRepositoryMockCreateEventResults{err}
+	mmCreateEvent.defaultExpectation.results = &EventRepositoryMockCreateEventResults{i1, err}
 	return mmCreateEvent.mock
 }
 
 //Set uses given function f to mock the EventRepository.CreateEvent method
-func (mmCreateEvent *mEventRepositoryMockCreateEvent) Set(f func(ctx context.Context, eventInfo *model.EventInfo) (err error)) *EventRepositoryMock {
+func (mmCreateEvent *mEventRepositoryMockCreateEvent) Set(f func(ctx context.Context, eventInfo *model.EventInfo) (i1 int64, err error)) *EventRepositoryMock {
 	if mmCreateEvent.defaultExpectation != nil {
 		mmCreateEvent.mock.t.Fatalf("Default expectation is already set for the EventRepository.CreateEvent method")
 	}
@@ -204,13 +205,13 @@ func (mmCreateEvent *mEventRepositoryMockCreateEvent) When(ctx context.Context, 
 }
 
 // Then sets up EventRepository.CreateEvent return parameters for the expectation previously defined by the When method
-func (e *EventRepositoryMockCreateEventExpectation) Then(err error) *EventRepositoryMock {
-	e.results = &EventRepositoryMockCreateEventResults{err}
+func (e *EventRepositoryMockCreateEventExpectation) Then(i1 int64, err error) *EventRepositoryMock {
+	e.results = &EventRepositoryMockCreateEventResults{i1, err}
 	return e.mock
 }
 
 // CreateEvent implements repository.EventRepository
-func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (err error) {
+func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (i1 int64, err error) {
 	mm_atomic.AddUint64(&mmCreateEvent.beforeCreateEventCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreateEvent.afterCreateEventCounter, 1)
 
@@ -228,7 +229,7 @@ func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, event
 	for _, e := range mmCreateEvent.CreateEventMock.expectations {
 		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
-			return e.results.err
+			return e.results.i1, e.results.err
 		}
 	}
 
@@ -244,7 +245,7 @@ func (mmCreateEvent *EventRepositoryMock) CreateEvent(ctx context.Context, event
 		if mm_results == nil {
 			mmCreateEvent.t.Fatal("No results are set for the EventRepositoryMock.CreateEvent")
 		}
-		return (*mm_results).err
+		return (*mm_results).i1, (*mm_results).err
 	}
 	if mmCreateEvent.funcCreateEvent != nil {
 		return mmCreateEvent.funcCreateEvent(ctx, eventInfo)

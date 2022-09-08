@@ -13,7 +13,7 @@ import (
 
 // EventRepository ...
 type EventRepository interface {
-	CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error
+	CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (int64, error)
 	UpdateEvent(ctx context.Context, eventID int64, updateEventInfo *model.UpdateEventInfo) error
 	DeleteEvent(ctx context.Context, eventID int64) error
 	GetEventListForDay(ctx context.Context, date time.Time) ([]*model.Event, error)

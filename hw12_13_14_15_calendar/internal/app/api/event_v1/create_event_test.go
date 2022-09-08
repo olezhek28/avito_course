@@ -18,7 +18,6 @@ import (
 	desc "github.com/olezhek28/avito_course/hw12_13_14_15_calendar/pkg/event_v1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -43,6 +42,7 @@ func TestImplementation_CreateEvent(t *testing.T) {
 		loggerConf           = &config.LoggerConf{
 			ShowTime: gofakeit.Bool(),
 		}
+		eventID = gofakeit.Int64()
 
 		repoErr = fmt.Errorf(gofakeit.Phrase())
 
@@ -78,12 +78,18 @@ func TestImplementation_CreateEvent(t *testing.T) {
 			},
 			OwnerID: ownerID,
 		}
+
+		res = &desc.CreateEventResponse{
+			Result: &desc.CreateEventResponse_Result{
+				Id: eventID,
+			},
+		}
 	)
 
 	tests := []struct {
 		name                string
 		args                args
-		want                *emptypb.Empty
+		want                *desc.CreateEventResponse
 		err                 error
 		eventRepositoryMock eventRepositoryMockFunc
 	}{
@@ -93,11 +99,11 @@ func TestImplementation_CreateEvent(t *testing.T) {
 				ctx: ctx,
 				req: req,
 			},
-			want: &emptypb.Empty{},
+			want: res,
 			err:  nil,
 			eventRepositoryMock: func(mc *minimock.Controller) repository.EventRepository {
 				mock := repoMocks.NewEventRepositoryMock(mc)
-				mock.CreateEventMock.Expect(ctx, eventInfoRepoReq).Return(nil)
+				mock.CreateEventMock.Expect(ctx, eventInfoRepoReq).Return(eventID, nil)
 				return mock
 			},
 		},
@@ -111,7 +117,7 @@ func TestImplementation_CreateEvent(t *testing.T) {
 			err:  repoErr,
 			eventRepositoryMock: func(mc *minimock.Controller) repository.EventRepository {
 				mock := repoMocks.NewEventRepositoryMock(mc)
-				mock.CreateEventMock.Expect(ctx, eventInfoRepoReq).Return(repoErr)
+				mock.CreateEventMock.Expect(ctx, eventInfoRepoReq).Return(0, repoErr)
 				return mock
 			},
 		},

@@ -8,7 +8,7 @@ import (
 )
 
 // CreateEvent ...
-func (s *Service) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
+func (s *Service) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (int64, error) {
 	eventInfo.NotificationDate = sql.NullTime{
 		Time:  eventInfo.StartDate.Time,
 		Valid: eventInfo.StartDate.Valid,

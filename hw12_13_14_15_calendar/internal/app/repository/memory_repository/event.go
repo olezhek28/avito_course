@@ -29,7 +29,7 @@ func NewEventRepository() repository.EventRepository {
 }
 
 // CreateEvent ...
-func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventInfo) error {
+func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventInfo) (int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -52,7 +52,7 @@ func (r *eventRepository) CreateEvent(_ context.Context, eventInfo *model.EventI
 
 	r.eventsByDate[beginDay][currentID] = r.eventsByIDs[currentID]
 
-	return nil
+	return currentID, nil
 }
 
 // UpdateEvent ...

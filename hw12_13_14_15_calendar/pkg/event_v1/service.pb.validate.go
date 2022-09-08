@@ -328,6 +328,83 @@ var _ interface {
 	ErrorName() string
 } = CreateEventRequestValidationError{}
 
+// Validate checks the field values on CreateEventResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateEventResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetResult()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CreateEventResponseValidationError{
+				field:  "Result",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// CreateEventResponseValidationError is the validation error returned by
+// CreateEventResponse.Validate if the designated constraints aren't met.
+type CreateEventResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateEventResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateEventResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateEventResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateEventResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateEventResponseValidationError) ErrorName() string {
+	return "CreateEventResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateEventResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateEventResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateEventResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateEventResponseValidationError{}
+
 // Validate checks the field values on UpdateEventRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -956,6 +1033,75 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEventListForMonthResponseValidationError{}
+
+// Validate checks the field values on CreateEventResponse_Result with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateEventResponse_Result) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// CreateEventResponse_ResultValidationError is the validation error returned
+// by CreateEventResponse_Result.Validate if the designated constraints aren't met.
+type CreateEventResponse_ResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateEventResponse_ResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateEventResponse_ResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateEventResponse_ResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateEventResponse_ResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateEventResponse_ResultValidationError) ErrorName() string {
+	return "CreateEventResponse_ResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateEventResponse_ResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateEventResponse_Result.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateEventResponse_ResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateEventResponse_ResultValidationError{}
 
 // Validate checks the field values on UpdateEventRequest_UpdateEventInfo with
 // the rules defined in the proto definition for this message. If any rules

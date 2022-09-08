@@ -14,7 +14,7 @@ import "validate/validate.proto";
 
 service EventServiceV1 {
   // Создает новое событие
-  rpc CreateEvent (CreateEventRequest) returns (google.protobuf.Empty) {
+  rpc CreateEvent (CreateEventRequest) returns (CreateEventResponse) {
     option (google.api.http) = {
       post: "/event/v1/create"
       body: "*"
@@ -87,6 +87,16 @@ message Event {
 
 message CreateEventRequest {
   EventInfo event_info = 1 [(validate.rules).message.required = true];
+}
+
+message CreateEventResponse {
+  // Результат выполнения реализации метода API CreateEvent
+  message Result {
+    // Идентификатор созданного события
+    int64 id = 1;
+  }
+
+  Result result = 1;
 }
 
 message UpdateEventRequest {

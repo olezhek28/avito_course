@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventServiceV1Client interface {
 	// Создает новое событие
-	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error)
 	// Обновляет событие по идентификатору
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// Удаляет событие по идентификатору
@@ -41,8 +41,8 @@ func NewEventServiceV1Client(cc grpc.ClientConnInterface) EventServiceV1Client {
 	return &eventServiceV1Client{cc}
 }
 
-func (c *eventServiceV1Client) CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *eventServiceV1Client) CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*CreateEventResponse, error) {
+	out := new(CreateEventResponse)
 	err := c.cc.Invoke(ctx, "/event.EventServiceV1/CreateEvent", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (c *eventServiceV1Client) GetEventListForMonth(ctx context.Context, in *Get
 // for forward compatibility
 type EventServiceV1Server interface {
 	// Создает новое событие
-	CreateEvent(context.Context, *CreateEventRequest) (*emptypb.Empty, error)
+	CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error)
 	// Обновляет событие по идентификатору
 	UpdateEvent(context.Context, *UpdateEventRequest) (*emptypb.Empty, error)
 	// Удаляет событие по идентификатору
@@ -118,7 +118,7 @@ type EventServiceV1Server interface {
 type UnimplementedEventServiceV1Server struct {
 }
 
-func (UnimplementedEventServiceV1Server) CreateEvent(context.Context, *CreateEventRequest) (*emptypb.Empty, error) {
+func (UnimplementedEventServiceV1Server) CreateEvent(context.Context, *CreateEventRequest) (*CreateEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
 }
 func (UnimplementedEventServiceV1Server) UpdateEvent(context.Context, *UpdateEventRequest) (*emptypb.Empty, error) {

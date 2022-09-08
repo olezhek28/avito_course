@@ -24,7 +24,7 @@ func NewEventRepository(db db.Client) repository.EventRepository {
 }
 
 // CreateEvent ...
-func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) error {
+func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.EventInfo) (int64, error) {
 	builder := sq.Insert(table.Event).
 		PlaceholderFormat(sq.Dollar).
 		Columns(
@@ -44,11 +44,12 @@ func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.Even
 			eventInfo.NotificationInterval.Nanoseconds(),
 			eventInfo.Description,
 			eventInfo.OwnerID,
-		)
+		).
+		Suffix("RETURNING id")
 
 	query, v, err := builder.ToSql()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	q := db.Query{
@@ -56,9 +57,21 @@ func (r *eventRepository) CreateEvent(ctx context.Context, eventInfo *model.Even
 		QueryRaw: query,
 	}
 
-	_, err = r.db.DB().ExecContext(ctx, q, v...)
+	row, err := r.db.DB().QueryContext(ctx, q, v...)
+	if err != nil {
+		return 0, err
+	}
+	defer row.Close()
 
-	return err
+	var eventID int64
+	if row.Next() {
+		err = row.Scan(&eventID)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return eventID, nil
 }
 
 // UpdateEvent ...
