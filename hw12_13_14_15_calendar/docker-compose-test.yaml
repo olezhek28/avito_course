@@ -9,7 +9,6 @@ networks:
 
 services:
   db:
-    container_name: db_repository
     image: postgres:14-alpine3.15
     environment:
       - "POSTGRES_DB=event-service"
@@ -23,7 +22,6 @@ services:
       - postgres_volume:/var/lib/postgresql/data
 
   calendar:
-    container_name: calendar
     build:
       context: .
       dockerfile: ./deploy/calendar/Dockerfile
@@ -35,13 +33,13 @@ services:
       - "DB_HOST=${DB_HOST}"
     ports:
       - "7000:7000"
+      - "7002:7002"
     depends_on:
       - db
     networks:
       - app_net
 
   migrator:
-    container_name: migrator
     build:
       context: .
       dockerfile: ./deploy/migrations/Dockerfile
@@ -54,7 +52,6 @@ services:
       - app_net
 
   queue:
-    container_name: queue
     image: rabbitmq:3-management-alpine
     networks:
       - app_net
@@ -63,7 +60,6 @@ services:
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
   scheduler:
-    container_name: scheduler
     build:
       context: .
       dockerfile: ./deploy/scheduler/Dockerfile
@@ -80,7 +76,6 @@ services:
       - app_net
 
   sender:
-    container_name: sender
     build:
       context: .
       dockerfile: ./deploy/sender/Dockerfile
