@@ -1,0 +1,15 @@
+{
+  "db":{
+    "dsn": "user=event-service-user dbname=event-service password={password} host=db port=5432 sslmode=disable",
+    "max_open_connections": 10
+  },
+
+  "source": {
+    "source_type": "db"
+  },
+
+  "logger": {
+    "show_time": true
+  }
+}
+

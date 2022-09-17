@@ -1,0 +1,20 @@
+{
+  "db":{
+    "dsn": "user=event-service-user dbname=event-service password={password} host=db port=5432 sslmode=disable",
+    "max_open_connections": 10
+  },
+
+  "rabbit_producer":{
+    "dsn": "amqp://guest:guest@queue:5672/",
+    "queue_name": "events"
+  },
+
+  "scheduler": {
+    "check_period_sec": 60
+  },
+
+  "logger": {
+    "show_time": true
+  }
+}
+
