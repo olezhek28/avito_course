@@ -26,12 +26,6 @@ run: build
 	$(BIN_SCHEDULER) -config ./configs/scheduler_config.json
 	$(BIN_SENDER) -config ./configs/sender_config.json
 
-integration-tests:
-	docker-compose -f docker-compose-test.yaml up -d && \
-	sleep 5 && \
-	ginkgo ./e2e && \
-	docker-compose -f docker-compose-test.yaml down -v
-
 test:
 	go test -race ./internal/... ./pkg/...
 
